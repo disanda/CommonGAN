@@ -1,0 +1,36 @@
+5python train_pose.py --adversarial_loss_mode=hinge_v2 --gradient_penalty_mode=0-gp --gradient_penalty_sample_mode=line --experiment_name=hingv2-gp-05_decay 
+#原版，有一个scheduler类似的decay
+
+#-------------------shift target-------------------
+
+python train_pose.py --adversarial_loss_mode=hinge_v2 --gradient_penalty_mode=0-gp --gradient_penalty_sample_mode=line --experiment_name=hingv2-gp_round-shift_r05-f04
+## 在原来的基础上加了RoundGP(根据ep来递减gradient),其次D的hinge目标r：05 shift到 f:04
+## 未完成
+
+python train_pose.py --adversarial_loss_mode=hinge_v2 --gradient_penalty_mode=0-gp --gradient_penalty_sample_mode=line --experiment_name=hingv2-gp-shift_r05-f04 --device=cpu
+# 1000次前暂时看来： 效果不错
+
+python train_pose.py --adversarial_loss_mode=hinge_v2 --gradient_penalty_mode=0-gp --gradient_penalty_sample_mode=line --experiment_name=hingv2-gp-shift_r055-f04
+
+python train_pose.py --adversarial_loss_mode=hinge_v2 --gradient_penalty_mode=0-gp --gradient_penalty_sample_mode=line --experiment_name=hingv2-gp-shift_r06-f03
+
+python train_pose.py --adversarial_loss_mode=hinge_v2 --gradient_penalty_mode=0-gp --gradient_penalty_sample_mode=line --experiment_name=hingv2-gp-shift_01-disGP 
+
+python train_pose.py --adversarial_loss_mode=hinge_v2 --gradient_penalty_mode=0-gp --gradient_penalty_sample_mode=line --experiment_name=hingv2-gp-shift_randomD
+#训练比较慢，但是双人效果不错
+
+python train_pose.py --adversarial_loss_mode=hinge_v2 --gradient_penalty_mode=0-gp --gradient_penalty_sample_mode=line --experiment_name=hingv2-gp-shift_randomD_01
+
+
+python train_pose.py --adversarial_loss_mode=hinge_v2 --gradient_penalty_mode=0-gp --gradient_penalty_sample_mode=line --experiment_name=hingv2-gp-shift_randomD_05
+#训练速度变快，双人效果变少
+
+python train_pose.py --adversarial_loss_mode=hinge_v2 --gradient_penalty_mode=0-gp --gradient_penalty_sample_mode=line --experiment_name=hingv2-gp-shift_randomDG
+#比较单一
+
+python train_pose.py --adversarial_loss_mode=hinge_v2 --gradient_penalty_mode=0-gp --gradient_penalty_sample_mode=line --experiment_name=hingv2-gp-shift_randomDG_Relu
+初期效果不错
+
+python train_pose.py --adversarial_loss_mode=hinge_v2 --gradient_penalty_mode=0-gp --gradient_penalty_sample_mode=line --experiment_name=hingv2-gp-shift_randomDG_Relu_EpGP
+
+python train_pose.py --adversarial_loss_mode=hinge_v2 --gradient_penalty_mode=0-gp --gradient_penalty_sample_mode=line --experiment_name=hingv2-gp-shift_randomDG_Relu_GD_EpGP

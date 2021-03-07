@@ -1,0 +1,72 @@
+- 提升G的参数规模可以提升生成效果，但是提升D的参数规模提升的效果不明显
+- 提升D的输出维度可以和G的输入维度对称，可以提升G的效果和D的表征能力
+
+G 和 D 网络结构的对称性：
+1.网络conv数量
+2.网络输入维度
+3.中间层维度
+
+
+#---------------------- celeba 128--------------------
+
+# <<整个模型的参数规模>>和生成效果的关系 :
+python train_celeba128.py --z_dim=200 --experiment_name=spectral_norm_celeba128_inputDim200 # ! 在z_dim维度扩大后，在没有decay的情况下消除了暗脸！, 注意:这个同时也扩大了整个网络的维度
+python train_celeba128.py --z_dim=128 --experiment_name=spectral_norm_celeba128_lr_scheduler #gan原版，效果逼真, dim = 128//8 * 128 =2048 (scale=16)
+python train_celeba128.py --z_dim=128 --experiment_name=spectral_norm_celeba128_inputDim128 # ！细节表征已接近充分，但是会出现暗脸
+python train_celeba128.py --z_dim=64 --experiment_name=spectral_norm_celeba128_inputDim64 # 效果大致提升
+python train_celeba128.py --z_dim=32 --experiment_name=spectral_norm_celeba128_inputDim32 # ?
+python train_celeba128.py --z_dim=16 --experiment_name=spectral_norm_celeba128_inputDim16 
+python train_celeba128.py --z_dim=12 --experiment_name=spectral_norm_celeba128_inputDim12 #效果随着inputDim的提高而提高
+python train_celeba128.py --z_dim=10 --experiment_name=spectral_norm_celeba128_inputDim10 #可以生成，效果一般
+python train_celeba128.py --z_dim=8 --experiment_name=spectral_norm_celeba128_inputDim8 #可以生成，但是已经无法充分表征特征细节了，效果变差。
+python train_celeba128.py --z_dim=6 --experiment_name=spectral_norm_celeba128_inputDim6  # ！ 比dim4更快进入全黑，第100次迭代后就进入群黑，且不会出现人脸雏形
+python train_celeba128.py --z_dim=4 --experiment_name=spectral_norm_celeba128_inputDim4  #比dim1更快进入全黑，前200次迭代(batch_size=32)时就全黑,(进去全黑前会出现人脸雏形)
+python train_celeba128.py --z_dim=1 --experiment_name=spectral_norm_celeba128_inputDim1 #图片在初期ep0-3时有少许单调图像，之后逐渐变为全黑, 维度表征不够?
+
+# 梯度衰减，即随着训练的增加，梯度随着"训练次数"的增加而衰减
+python train_celeba128.py --experiment_name=spectral_norm_celeba128  #只有D有Decay, 没有指数衰减，图片结果部分比较暗淡 (scale=16) 
+python train_celeba128.py --z_dim=128 --experiment_name=spectral_norm_celeba128_inputDim128_D_Decay #貌似梯度递减在非对称的情况下不太行。效果很差，类似模式崩溃
+
+# input_dim和效果的关系
+python train_celeba128.py --z_dim=8 --scale=128 --experiment_name=spectral_norm_celeba128_inputDim8_scale128 
+# 这个和上面实验中z_dim=64(scale16)的网络规模一样的，区别只是input_dim不同, 结果是: 初期很暗淡，后期背景和头像都比较单一
+
+#想证明训练除了和输入输出维度相关外，还和层与层之间的递增的对称性相关。特别G起始层，以及D最后一层，跨度太大
+python train_celeba.py --addTraingTimes=1
+
+#---------------------- celeba 256 --------------------
+
+###	一个float =64bit(位/即双精度), 8字节即Byte. 即8bit = 1Byte. 
+###	1KB = 1024B, 1MB = 1024KB , 1GB = 1024MB   
+###	!!! G在hidden_first=1024的情况下是生成不好的
+
+python train_celeba256.py --z_dim=32 --Gscale=32 --Dscale=32 --experiment_name=spectral_norm_celeba256_inputDim32_Scale32_32
+#这个版本实际上D的参数规模约是G的3.822651倍(scale=16)
+
+python train_celeba256.py --z_dim=32 --Gscale=32 --Dscale=16 --experiment_name=spectral_norm_celeba256_inputDim32_Scale32_16
+#这个版本实际上D的参数规模和G持平,不绝对相等(Dscale=8)
+
+python train_celeba256.py --z_dim=64 --Gscale=16 --Dscale=8 --experiment_name=spectral_norm_celeba256_inputDim32_Scale16_8
+#win: 持平, hidden=1024, 参数太低，不清楚. 不过，同一批z生成的图是类似的，比如背景、主色、轮廓等，意味着低size下有特征聚合的能力
+
+
+python train_celeba256.py --z_dim=128 --Gscale=16 --Dscale=8 --experiment_name=spectral_norm_celeba256_inputDim32_Scale16_8
+# dim:2048 , G和D对称，input_dim: g128, D64 效果不错 
+
+python train_celeba256.py --z_dim=256 --Gscale=8 --Dscale=4 --experiment_name=spectral_norm_celeba256_inputDim32_Scale8_4
+# dim:2048 , G和D对称(和上例结构相同,但是G要比D的参数规模大一些，因为G的input_size大一些)， 因此效果没有上例好
+！！！ 说明 不仅需要网络对称，input_size也需要对称(差距不能太大)
+
+python train_celeba.py --z_dim=128 --Gscale=16 --Dscale=8 --experiment_name=spectral_norm_celeba256_inputDim256_Scale16_8_lr
+#效果不好，说明lr让梯度衰减的太厉害了,或者inout过低？
+
+python train_celeba.py --z_dim=256 --Gscale=16 --Dscale=8 --experiment_name=spectral_norm_celeba256_inputDim256_Scale16_8_lr
+
+
+
+
+#------------------------ celeba 512 ------------------------
+python train_celeba.py --img_size=512 --z_dim=256 --Gscale=32 --Dscale=4 --experiment_name=spectral_norm_celeba512_inputDim256_Scale32_4
+
+python train_celeba.py --img_size=512 --z_dim=256 --Gscale=32 --Dscale=4 --experiment_name=spectral_norm_celeba512_inputDim256_Scale32_8
+
