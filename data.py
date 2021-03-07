@@ -73,15 +73,15 @@ def make_dataset(dataset_name, batch_size,img_size,drop_remainder=True, shuffle=
         dataset = DatasetFromFolder(path='',size=64)
         img_shape = (img_size, img_size, 3)
     elif dataset_name == 'celeba_HQ':
-        transform_128 = transforms.Compose([
+        transform_a = transforms.Compose([
             transforms.Resize(size=(img_size, img_size)),
             transforms.ToTensor(),
             #transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
             ])
         #path_128 = 'F:/dataSet2/CelebAMask-HQ/CelebA-HQ-img' #家主机
-        path_128 = '/home/disanda/Desktop/dataSet/CelebAMask-HQ/img-30000/CelebA-HQ-img/' #学校个人主机
+        path_a = '/home/disanda/Desktop/dataSet/CelebAMask-HQ/img-30000/CelebA-HQ-img/' #学校个人主机
         #path_128 = '/_yucheng/dataSet/CelebAMask-HQ/CelebAMask-HQ/CelebA-HQ-img' #云平台
-        dataset = DatasetFromFolder(path=path_128,transform=transform_128,channels=3)
+        dataset = DatasetFromFolder(path=path_a,transform=transform_a,channels=3)
         img_shape = (img_size, img_size, 3)
     else:
         raise NotImplementedError
