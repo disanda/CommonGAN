@@ -74,6 +74,12 @@ G = net.Generator(input_dim=args.z_dim, output_channels = args.img_channels, ima
 D = net.Discriminator_SpectrualNorm(args.z_dim, input_channels = args.img_channels, image_size=args.img_size, scale=args.Dscale).to(device)
 x,y = net.get_parameter_number(G),net.get_parameter_number(D)
 x_GB, y_GB = net.get_para_GByte(x),net.get_para_GByte(y)
+print(G)
+print(D)
+print(x)
+print(y)
+print(x_GB)
+print(y_GB)
 with open(output_dir+'/net.txt','w+') as f:
 	#if os.path.getsize(output_dir+'/net.txt') == 0: #判断文件是否为空
 		print(G,file=f)
