@@ -58,7 +58,7 @@ with open(os.path.join(output_dir, 'settings.yml'), "w", encoding="utf-8") as f:
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # --------dataset
-data_loader, shape = data.make_dataset(args.dataset, args.batch_size, args.img_size, pin_memory=use_gpu)
+data_loader, shape = data.make_dataset(args.dataset, args.batch_size, args.img_size)
 #n_G_upsamplings = n_D_downsamplings = 5 # 3: 32x32  4:64:64 5:128 6:256
 print('data-size:    '+str(shape))
 
