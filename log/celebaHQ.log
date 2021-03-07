@@ -1,0 +1,3 @@
+
+python train_celeba.py --experiment_name=img25_ --Gscale=8 
+#G比D的参数容量大4倍
