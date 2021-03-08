@@ -34,7 +34,7 @@ parser.add_argument('--img_channels', type=int, default=3)# RGB:3 ,L:1
 parser.add_argument('--img_size',type=int,default=256)
 parser.add_argument('--Gscale', type=int, default=16) # scale：网络隐藏层维度数,默认为 image_size//8 * image_size 
 parser.add_argument('--Dscale', type=int, default=16) 
-parser.add_argument('--z_dim', type=int, default=512) # 网络随机噪声 z 输入的维度数 即input_dim
+parser.add_argument('--z_dim', type=int, default=128) # 网络随机噪声 z 输入的维度数 即input_dim
 args = parser.parse_args()
 
 # -----output_dir
@@ -72,7 +72,7 @@ print('data-size:    '+str(shape))
 
 G = net.Generator(input_dim=args.z_dim, output_channels = args.img_channels, image_size=args.img_size, scale=args.Gscale).to(device)
 print(G)
-D = net.Discriminator_SpectrualNorm(args.z_dim, input_channels = args.img_channels, image_size=args.img_size, scale=args.Dscale).to(device)
+D = net.Discriminator_SpectrualNorm(args.z_dim, input_channels = args.img_channels, image_size=args.img_size, Dscale=args.Dscale, Gscale=args.Gscale).to(device)
 print(D)
 x,y = net.get_parameter_number(G),net.get_parameter_number(D)
 x_GB, y_GB = net.get_para_GByte(x),net.get_para_GByte(y)
