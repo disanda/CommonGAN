@@ -37,9 +37,9 @@ def make_dataset(dataset_name, batch_size,img_size,drop_remainder=True, shuffle=
             transforms.Lambda(lambda x: torch.cat((x, x, x), dim=0)) # x -> (x,x,x)
         ])
         if dataset_name == 'mnist':
-            dataset = datasets.MNIST('data/MNIST', transform=transform, download=True)
+            dataset = datasets.MNIST('data/', transform=transform, download=False)
         else:
-            dataset = datasets.FashionMNIST('data/FashionMNIST', transform=transform, download=True)
+            dataset = datasets.FashionMNIST('data/', transform=transform, download=False)
         img_shape = [img_size, img_size, 1]
     elif dataset_name == 'cifar10':
         transform = transforms.Compose([
