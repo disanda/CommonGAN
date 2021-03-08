@@ -3,3 +3,7 @@
 python train_mnist.py --experiment_name=mnist64 
 # 如果 z_dim=64,   DG=512， 网络很快会训练到全黑模式
 #      z_dim=64,  DG=1024, 即网络规模扩大一倍，效果得到好转
+
+
+python train_mnist.py --experiment_name=mnist64 --z_dim=128
+# 抹去了网络中的均值，维度扩大
