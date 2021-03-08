@@ -31,9 +31,10 @@ class DatasetFromFolder(Dataset):
 def make_dataset(dataset_name, batch_size,img_size,drop_remainder=True, shuffle=True, num_workers=4, pin_memory=False,img_paths=''):
     if dataset_name == 'mnist' or dataset_name=='fashion_mnist':
         transform = transforms.Compose([
-            transforms.Resize(size=(img_size, img_size)),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.5], std=[0.5])
+            transforms.Resize(size=(img_size, img_size),interpolation=Image.BICUBIC),
+            transforms.ToTensor(), # [0,255] -> [0,1]
+            #transforms.Normalize(mean=[0.5], std=[0.5]), # [0,1] -> [1,1] (x*mean+std)
+            transforms.Lambda(lambda x: torch.cat((x, x, x), dim=0)) # x -> (x,x,x)
         ])
         if dataset_name == 'mnist':
             dataset = datasets.MNIST('data/MNIST', transform=transform, download=True)
@@ -75,8 +76,8 @@ def make_dataset(dataset_name, batch_size,img_size,drop_remainder=True, shuffle=
     elif dataset_name == 'celeba_HQ':
         transform_a = transforms.Compose([
             transforms.Resize(size=(img_size, img_size)),
-            transforms.ToTensor(),
-            #transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
+            transforms.ToTensor(), #Img2Tensor [0,255]->[0,1]
+            #transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]) #取值范围(0,1)->(-1,1)
             ])
         #path_128 = 'F:/dataSet2/CelebAMask-HQ/CelebA-HQ-img' #家主机
         path_a = '/home/disanda/Desktop/dataSet/CelebAMask-HQ/img-30000/CelebA-HQ-img/' #学校个人主机

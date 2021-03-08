@@ -1,0 +1,3 @@
+# 验证一个生成器生成多个数据集
+
+python train_mnist.py --experiment_name=mnist64 

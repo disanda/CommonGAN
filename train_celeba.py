@@ -68,8 +68,6 @@ print('data-size:    '+str(shape))
 # =                                   model                                    =
 # ==============================================================================
 
-# networks
-
 G = net.Generator(input_dim=args.z_dim, output_channels = args.img_channels, image_size=args.img_size, scale=args.Gscale).to(device)
 print(G)
 D = net.Discriminator_SpectrualNorm(input_dim=args.z_dim, input_channels = args.img_channels, image_size=args.img_size, Dscale=args.Dscale, Gscale=args.Gscale).to(device)
