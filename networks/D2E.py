@@ -85,14 +85,13 @@ class Discriminator(nn.Module):
 
         # 3: 4*4 > 1*1
         layers.append(nn.Conv2d(hidden_dim, 1, kernel_size=4, stride=1, padding=0))
-        layers.append(nn.Sigmoid())
 
         # all:
         self.net = nn.Sequential(*layers)
 
     def forward(self, x):
         y = self.net(x)
-        y = y.mean()
+        #y = y.mean()
         return y # [1,1,1,1]
 
 class Discriminator_SpectrualNorm(nn.Module):
@@ -117,14 +116,13 @@ class Discriminator_SpectrualNorm(nn.Module):
 
         # 3: 4*4 > 1*1
         layers.append(nn.Conv2d(hidden_dim, input_dim, kernel_size=4, stride=1, padding=0))
-        layers.append(nn.Sigmoid())
 
         # all:
         self.net = nn.Sequential(*layers)
 
     def forward(self, x):
         y = self.net(x)
-        y = y.mean()
+        #y = y.mean()
         return y # [1,1,1,1]
 
 
