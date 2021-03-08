@@ -34,7 +34,7 @@ class Generator(nn.Module):
         super().__init__()
         layers = []
         up_times = math.log(image_size,2)- 3# 减去前两次 1->2->4， 及最后一次， 方便中间写循环
-        first_hidden_dim = input_dim*scale # 这里对应输入维度，表示《输入维度》对应《网络中间层维度（起点）》的放大倍数
+        first_hidden_dim = image_size*scale # 这里对应输入维度，表示《输入维度》对应《网络中间层维度（起点）》的放大倍数
         bias_flag = False
 
         # 1: 1x1 -> 4x4
@@ -67,7 +67,7 @@ class Discriminator(nn.Module):
         super().__init__()
         layers=[]
         up_times = math.log(image_size,2)- 3
-        first_hidden_dim = (input_dim * Gscale// 2**int(up_times)) // Dscale # 默认为input_dim 
+        first_hidden_dim = (image_size * Gscale// 2**int(up_times)) // Dscale # 默认为input_dim 
         bias_flag = False
 
         # 1:
