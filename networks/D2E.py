@@ -67,7 +67,7 @@ class Discriminator(nn.Module):
         super().__init__()
         layers=[]
         up_times = math.log(image_size,2)- 3
-        first_hidden_dim = input_dim*Dscale//Gscale # 默认为input_dim 
+        first_hidden_dim = (input_dim * Gscale// 2**int(up_times)) // Dscale # 默认为input_dim 
         bias_flag = False
 
         # 1:
@@ -92,6 +92,7 @@ class Discriminator(nn.Module):
 
     def forward(self, x):
         y = self.net(x)
+        y = y.mean()
         return y # [1,1,1,1]
 
 class Discriminator_SpectrualNorm(nn.Module):
