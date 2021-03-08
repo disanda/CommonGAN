@@ -63,11 +63,11 @@ class Generator(nn.Module):
         return x
 
 class Discriminator(nn.Module):
-    def __init__(self, input_dim=128, input_channels=3, image_size=128, scale=16, another_times=0):
+    def __init__(self, input_dim=128, input_channels=3, image_size=128, Dscale=16, Gscale=16):
         super().__init__()
         layers=[]
         up_times = math.log(image_size,2)- 3
-        first_hidden_dim = input_dim*scale//16 # 默认为input_dim 
+        first_hidden_dim = input_dim*Dscale//Gscale # 默认为input_dim 
         bias_flag = False
 
         # 1:
@@ -95,11 +95,11 @@ class Discriminator(nn.Module):
         return y # [1,1,1,1]
 
 class Discriminator_SpectrualNorm(nn.Module):
-    def __init__(self, input_dim=128, input_channels=3, image_size=128, scale=16, another_times=0):
+    def __init__(self, input_dim=128, input_channels=3, image_size=128, Dscale=16, Gscale=16):
         super().__init__()
         layers=[]
         up_times = math.log(image_size,2)- 3
-        first_hidden_dim = input_dim * scale // 16 # 默认为input_dim 
+        first_hidden_dim = input_dim * Dscale // Gscale # 默认为input_dim 
         bias_flag = False
 
         # 1:
