@@ -29,6 +29,12 @@ class DatasetFromFolder(Dataset):
     def __len__(self):
         return len(self.image_filenames)
 
+transform_RGB = transforms.Compose([
+            transforms.Resize(size=(img_size, img_size)),
+            transforms.ToTensor(),
+            #transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
+        ])
+
 def make_dataset(dataset_name, batch_size,img_size,drop_remainder=True, shuffle=True, num_workers=4, pin_memory=False,img_paths=''):
     if dataset_name == 'mnist' or dataset_name=='fashion_mnist':
         transform = transforms.Compose([
@@ -43,56 +49,30 @@ def make_dataset(dataset_name, batch_size,img_size,drop_remainder=True, shuffle=
             dataset = datasets.FashionMNIST('data/', transform=transform, download=False)
         img_shape = [img_size, img_size, 1]
     elif dataset_name == 'cifar10':
-        transform = transforms.Compose([
-            transforms.ToTensor(),
-            #transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
-        ])
-        dataset = datasets.CIFAR10('data/CIFAR10', transform=transform, download=True)
+        dataset = datasets.CIFAR10('data/CIFAR10', transform=transform_RGB, download=True)
         img_shape = [32, 32, 3]
     elif dataset_name == 'pose10':
-        transform_pose10 = transforms.Compose([
-            transforms.Resize(size=(img_size, img_size)),
-            transforms.ToTensor(),
-            #transforms.Normalize(mean=[0.5], std=[0.5]) #黑白应该是不用norm
-        ])
         #dataset = DatasetFromFolder(path='/_yucheng/dataSet/pose/pose_set_10',size=img_size)
         #dataset = DatasetFromFolder(path='./data/Pose/pose_set_10',size=img_size)
         path_pose10='./data/Pose/pose_set_10'
-        dataset = DatasetFromFolder(path=path_pose10,transform=transform_pose10,channels=1)
+        dataset = DatasetFromFolder(path=path_pose10,transform=transform_RGB)
         img_shape = [img_size, img_size, 1]
     elif dataset_name == '3dface':
-        transform_pose10 = transforms.Compose([
-            transforms.Resize(size=(img_size, img_size)),
-            transforms.ToTensor(),
-            #transforms.Normalize(mean=[0.5], std=[0.5]) #黑白应该是不用norm
-        ])
-        path_pose10='/_yucheng/dataSet/face3d/face3d/'
-        dataset = DatasetFromFolder(path=path_pose10,transform=transform_pose10,channels=1)
+        path_3dface='/_yucheng/dataSet/face3d/face3d/'
+        dataset = DatasetFromFolder(path=path_3dface,transform=transform_RGB)
         img_shape = [img_size, img_size, 3]
     elif dataset_name == 'celeba_64':
         crop_size = 108
         offset_height = (218 - crop_size) // 2
         offset_width = (178 - crop_size) // 2
         crop = lambda x: x[:, offset_height:offset_height + crop_size, offset_width:offset_width + crop_size]# [image,height,width]
-        transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Lambda(crop),
-            transforms.Resize(size=(img_size, img_size)),
-            transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
-            #transforms.ToPILImage()
-            ])
-        dataset = DatasetFromFolder(path='',size=64)
+        dataset = DatasetFromFolder(path='',transform=transform_RGB)
         img_shape = (img_size, img_size, 3)
     elif dataset_name == 'celeba_HQ':
-        transform_a = transforms.Compose([
-            transforms.Resize(size=(img_size, img_size)),
-            transforms.ToTensor(), #Img2Tensor [0,255]->[0,1]
-            #transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]) #取值范围(0,1)->(-1,1)
-            ])
         #path_128 = 'F:/dataSet2/CelebAMask-HQ/CelebA-HQ-img' #家主机
         path_a = '/home/disanda/Desktop/dataSet/CelebAMask-HQ/img-30000/CelebA-HQ-img/' #学校个人主机
         #path_128 = '/_yucheng/dataSet/CelebAMask-HQ/CelebAMask-HQ/CelebA-HQ-img' #云平台
-        dataset = DatasetFromFolder(path=path_a,transform=transform_a,channels=3)
+        dataset = DatasetFromFolder(path=path_a,transform=transform_RGB,channels=3)
         img_shape = (img_size, img_size, 3)
     else:
         raise NotImplementedError
