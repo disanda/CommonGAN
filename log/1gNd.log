@@ -8,5 +8,7 @@ python train_mnist.py --experiment_name=mnist64
 python train_mnist.py --experiment_name=mnist64 --z_dim=128
 # 抹去了网络中的均值，z_dim维度和GD参数同时扩大 [128,2048] , 效果大幅提升
 
-python train_mnist.py --experiment_name=mnist64 --z_dim=128
-# 解除z_dim和GD参数同步, 
+python train_mnist.py --experiment_name=mnist64_zDim128 --z_dim=128 --Gscale=16
+# 解除z_dim和GD参数同步, 同时在小规模GD下训练[128,1024],不太稳定，最终崩溃，换一个loss试一下。
+
+python train_mnist.py --experiment_name=mnist64_zDim128_hingev1 --z_dim=128 --Gscale=16 --adversarial_loss_mode=hinge_v1
