@@ -66,9 +66,9 @@ use_gpu = torch.cuda.is_available()
 device = torch.device("cuda" if use_gpu else "cpu")
 
 # dataset
-data_loader1, shape = data.make_dataset(args.dataset, args.batch_size, args.img_size,num_workers=arg.dataNum,pin_memory=use_gpu)
-data_loader2, shape = data.make_dataset(args.dataset2, args.batch_size, args.img_size,num_workers=arg.dataNum,pin_memory=use_gpu)
-data_loader3, shape = data.make_dataset(args.dataset3, args.batch_size, args.img_size,num_workers=arg.dataNum,pin_memory=use_gpu)
+data_loader1, shape = data.make_dataset(args.dataset, args.batch_size, args.img_size,num_workers=args.dataNum,pin_memory=use_gpu)
+data_loader2, shape = data.make_dataset(args.dataset2, args.batch_size, args.img_size,num_workers=args.dataNum,pin_memory=use_gpu)
+data_loader3, shape = data.make_dataset(args.dataset3, args.batch_size, args.img_size,num_workers=args.dataNum,pin_memory=use_gpu)
 #n_G_upsamplings = n_D_downsamplings = 5 # 3: 32x32  4:64:64 5:128 6:256
 print('data-size:    '+str(shape))
 
