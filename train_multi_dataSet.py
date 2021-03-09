@@ -34,6 +34,7 @@ parser.add_argument('--img_channels', type=int, default=3)# RGB:3 ,L:1
 parser.add_argument('--dataset', default='mnist')#choices=['cifar10', 'fashion_mnist', 'mnist', 'celeba', 'anime', 'custom'])
 parser.add_argument('--dataset2', default='fashion_mnist')
 parser.add_argument('--dataset3', default='3dface')
+parser.add_argument('--dataNum', type=int, default=1) 
 parser.add_argument('--z_dim', type=int, default=64)
 parser.add_argument('--Gscale', type=int, default=16) # scale：网络隐藏层维度数,默认为 image_size//8 * image_size 
 parser.add_argument('--Dscale', type=int, default=1) 
@@ -65,9 +66,9 @@ use_gpu = torch.cuda.is_available()
 device = torch.device("cuda" if use_gpu else "cpu")
 
 # dataset
-data_loader1, shape = data.make_dataset(args.dataset, args.batch_size, args.img_size,pin_memory=use_gpu)
-data_loader2, shape = data.make_dataset(args.dataset2, args.batch_size, args.img_size,pin_memory=use_gpu)
-data_loader3, shape = data.make_dataset(args.dataset3, args.batch_size, args.img_size,pin_memory=use_gpu)
+data_loader1, shape = data.make_dataset(args.dataset, args.batch_size, args.img_size,num_workers=arg.dataNum,pin_memory=use_gpu)
+data_loader2, shape = data.make_dataset(args.dataset2, args.batch_size, args.img_size,num_workers=arg.dataNum,pin_memory=use_gpu)
+data_loader3, shape = data.make_dataset(args.dataset3, args.batch_size, args.img_size,num_workers=arg.dataNum,pin_memory=use_gpu)
 #n_G_upsamplings = n_D_downsamplings = 5 # 3: 32x32  4:64:64 5:128 6:256
 print('data-size:    '+str(shape))
 
