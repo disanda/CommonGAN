@@ -58,7 +58,7 @@ def make_dataset(dataset_name, batch_size,img_size,drop_remainder=True, shuffle=
         dataset = DatasetFromFolder(path=path_pose10,transform=transform_RGB)
         img_shape = [img_size, img_size, 1]
     elif dataset_name == '3dface':
-        path_3dface='/_yucheng/dataSet/face3d/face3d/'
+        path_3dface='/_yucheng/dataSet/face3d/face3d/data2/'
         dataset = DatasetFromFolder(path=path_3dface,transform=transform_RGB)
         img_shape = [img_size, img_size, 3]
     elif dataset_name == 'celeba_64':
