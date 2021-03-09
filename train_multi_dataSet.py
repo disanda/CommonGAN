@@ -136,7 +136,7 @@ if __name__ == '__main__':
 	D.train()
 	for ep in tqdm.trange(args.epochs, desc='Epoch Loop'):
 	    it_d, it_g = 0, 0
-	    for (x_real1,label_1),(x_real2,label_2),(x_real3,label_3) in tqdm.tqdm(zip(data_loader1,data_loader2,data_loader3), desc='Inner Epoch Loop'):
+	    for (x_real1,label_1),(x_real2,label_2),x_real3 in tqdm.tqdm(zip(data_loader1,data_loader2,data_loader3), desc='Inner Epoch Loop'):
 	    #for x_real in tqdm.tqdm(data_loader, desc='Inner Epoch Loop'):
 	        x_real = torch.cat((x_real1,x_real2))
 	        x_real = torch.cat((x_real,x_real3))
