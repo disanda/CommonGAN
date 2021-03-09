@@ -43,6 +43,8 @@ if args.experiment_name == 'none':
     if args.gradient_penalty_mode != 'none':
         args.experiment_name += '_%s_%s' % (args.gradient_penalty_mode, args.gradient_penalty_sample_mode)
 
+args.experiment_name += '_Gs%d_Ds%d_Zdim%d_imgSize%d_batch_size%d' % (args.Gscale, args.Dscale, args.z_dim, args.img_size,args.batch_size)
+
 output_dir = os.path.join('output', args.experiment_name)
 
 if not os.path.exists('output'):
@@ -76,10 +78,9 @@ print(D)
 x,y = net.get_parameter_number(G),net.get_parameter_number(D)
 x_GB, y_GB = net.get_para_GByte(x),net.get_para_GByte(y)
 
-print(x)
-print(y)
-print(x_GB)
-print(y_GB)
+G.load_state_dict(torch.load('./pre-model/G_in256_G8.pth',map_location=device)) #shadow的效果要好一些 
+D.load_state_dict(torch.load('./pre-model/D_in256_D4.pth',map_location=device))
+
 with open(output_dir+'/net.txt','w+') as f:
 	#if os.path.getsize(output_dir+'/net.txt') == 0: #判断文件是否为空
 		print(G,file=f)
