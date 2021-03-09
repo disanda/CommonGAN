@@ -15,7 +15,6 @@ def get_gan_losses_fn():
 
     return d_loss_fn, g_loss_fn
 
-
 def get_hinge_v1_losses_fn():
     def d_loss_fn(r_logit, f_logit):
         r_loss = torch.max(1 - r_logit, torch.zeros_like(r_logit)).mean()

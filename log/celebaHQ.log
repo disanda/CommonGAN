@@ -6,3 +6,4 @@ python train_celeba.py --experiment_name=img256_ --z_dim=256 --Gscale=16 --Dscal
 #2021, Tue, Mar09: 
 #调整了网络结构比，让Dscale成为相对Gsacale缩小的倍数（即G的1/2）
 #继续上一次，G比D的参数容量大2倍 (二位倍数，实际数量则是4倍)。上一次硬盘满了，G保存到ep59, D只保存到ep49
+

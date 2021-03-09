@@ -1,4 +1,4 @@
-# 验证一个生成器生成多个数据集
+# 验证单数据集下，网络规模，LS（z_dim）维度，loss 不同情况下的效果
 
 python train_mnist.py --experiment_name=mnist64 
 # 如果 z_dim=64,   DG=512， 网络很快会训练到全黑模式
@@ -12,3 +12,13 @@ python train_mnist.py --experiment_name=mnist64_zDim128 --z_dim=128 --Gscale=16
 # 解除z_dim和GD参数同步, 同时在小规模GD下训练[128,1024],不太稳定，最终崩溃，换一个loss试一下。
 
 python train_mnist.py --experiment_name=mnist64_zDim128_hingev1 --z_dim=128 --Gscale=8 --adversarial_loss_mode=hinge_v1
+# 效果大幅提升SVM的多维分类性能显著提高性能，配合LS对称
+
+python train_mnist.py --experiment_name=mnist64_zDim128_hingev1 --z_dim=128 --Gscale=4 --adversarial_loss_mode=hinge_v1
+# 
+
+# 验证一个生成器生成多个数据集
+
+python train_multi_mnist.py --experiment_name=nd64_zDim128_hingev1 --z_dim=128 --Gscale=4 --adversarial_loss_mode=hinge_v1
+
+
