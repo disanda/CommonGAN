@@ -29,24 +29,24 @@ class DatasetFromFolder(Dataset):
     def __len__(self):
         return len(self.image_filenames)
 
-transform_RGB = transforms.Compose([
+
+def make_dataset(dataset_name, batch_size,img_size,drop_remainder=True, shuffle=True, num_workers=4, pin_memory=False,img_paths=''):
+    transform_RGB = transforms.Compose([
             transforms.Resize(size=(img_size, img_size)),
             transforms.ToTensor(),
             #transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
         ])
-
-def make_dataset(dataset_name, batch_size,img_size,drop_remainder=True, shuffle=True, num_workers=4, pin_memory=False,img_paths=''):
-    if dataset_name == 'mnist' or dataset_name=='fashion_mnist':
-        transform = transforms.Compose([
+    transform_L = transforms.Compose([
             transforms.Resize(size=(img_size, img_size),interpolation=Image.BICUBIC),
             transforms.ToTensor(), # [0,255] -> [0,1]
             #transforms.Normalize(mean=[0.5], std=[0.5]), # [0,1] -> [1,1] (x*mean+std)
             transforms.Lambda(lambda x: torch.cat((x, x, x), dim=0)) # x -> (x,x,x)
         ])
+    if dataset_name == 'mnist' or dataset_name=='fashion_mnist':
         if dataset_name == 'mnist':
-            dataset = datasets.MNIST('data/', transform=transform, download=False)
+            dataset = datasets.MNIST('data/', transform=transform_L, download=False)
         else:
-            dataset = datasets.FashionMNIST('data/', transform=transform, download=False)
+            dataset = datasets.FashionMNIST('data/', transform=transform_L, download=False)
         img_shape = [img_size, img_size, 1]
     elif dataset_name == 'cifar10':
         dataset = datasets.CIFAR10('data/CIFAR10', transform=transform_RGB, download=True)
