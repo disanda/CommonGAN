@@ -75,10 +75,9 @@ print(D)
 x,y = net.get_parameter_number(G),net.get_parameter_number(D)
 x_GB, y_GB = net.get_para_GByte(x),net.get_para_GByte(y)
 
-print(x)
-print(y)
-print(x_GB)
-print(y_GB)
+#G.load_state_dict(torch.load('./pre-model/G_in256_G8.pth',map_location=device)) #shadow的效果要好一些 
+#D.load_state_dict(torch.load('./pre-model/D_in256_D4.pth',map_location=device))
+
 with open(output_dir+'/net.txt','w+') as f:
 	#if os.path.getsize(output_dir+'/net.txt') == 0: #判断文件是否为空
 		print(G,file=f)
