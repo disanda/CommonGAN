@@ -33,6 +33,7 @@ parser.add_argument('--img_size',type=int, default=64)
 parser.add_argument('--img_channels', type=int, default=3)# RGB:3 ,L:1
 parser.add_argument('--dataset', default='mnist')#choices=['cifar10', 'fashion_mnist', 'mnist', 'celeba', 'anime', 'custom'])
 parser.add_argument('--dataset2', default='fashion_mnist')
+parser.add_argument('--dataset3', default='3dface')
 parser.add_argument('--z_dim', type=int, default=64)
 parser.add_argument('--Gscale', type=int, default=16) # scale：网络隐藏层维度数,默认为 image_size//8 * image_size 
 parser.add_argument('--Dscale', type=int, default=1) 
@@ -66,6 +67,7 @@ device = torch.device("cuda" if use_gpu else "cpu")
 # dataset
 data_loader1, shape = data.make_dataset(args.dataset, args.batch_size, args.img_size,pin_memory=use_gpu)
 data_loader2, shape = data.make_dataset(args.dataset2, args.batch_size, args.img_size,pin_memory=use_gpu)
+data_loader3, shape = data.make_dataset(args.dataset3, args.batch_size, args.img_size,pin_memory=use_gpu)
 #n_G_upsamplings = n_D_downsamplings = 5 # 3: 32x32  4:64:64 5:128 6:256
 print('data-size:    '+str(shape))
 
@@ -133,11 +135,12 @@ if __name__ == '__main__':
 	D.train()
 	for ep in tqdm.trange(args.epochs, desc='Epoch Loop'):
 	    it_d, it_g = 0, 0
-	    for (x_real1,label_1),(x_real2,label_2) in tqdm.tqdm(zip(data_loader1,data_loader2), desc='Inner Epoch Loop'):
+	    for (x_real1,label_1),(x_real2,label_2),(x_real3,label_3) in tqdm.tqdm(zip(data_loader1,data_loader2,data_loader3), desc='Inner Epoch Loop'):
 	    #for x_real in tqdm.tqdm(data_loader, desc='Inner Epoch Loop'):
 	        x_real = torch.cat((x_real1,x_real2))
+	        x_real = torch.cat((x_real,x_real3))
 	        x_real = x_real.to(device)
-	        z = torch.randn(args.batch_size, args.z_dim, 1, 1).to(device)
+	        z = torch.randn(args.batch_size*3, args.z_dim, 1, 1).to(device)
 
 #--------training D-----------
 	        x_fake = G(z)
@@ -183,9 +186,9 @@ if __name__ == '__main__':
 	        if (it_g)%100==0:
 	        #x_fake = (sample(z)+1)/2
 	            with torch.no_grad():
-	                z_t = torch.randn(64, args.z_dim, 1, 1).to(device)
+	                z_t = torch.randn(100, args.z_dim, 1, 1).to(device)
 	                x_fake = sample(z_t)
-	                torchvision.utils.save_image(x_fake,sample_dir+'/ep%d_it%d.jpg'%(ep,it_g), nrow=8)
+	                torchvision.utils.save_image(x_fake,sample_dir+'/ep%d_it%d.jpg'%(ep,it_g), nrow=10)
 	                with open(output_dir+'/loss.txt','a+') as f:
 	                    print('G_loss:'+str(G_loss)+'------'+'D_loss'+str(D_loss),file=f)
 	                    print('------------------------')

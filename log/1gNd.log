@@ -20,5 +20,7 @@ python train_mnist.py --experiment_name=mnist64_zDim128_hingev1 --z_dim=128 --Gs
 # 验证一个生成器生成多个数据集
 
 python train_multi_mnist.py --experiment_name=nd64_zDim128_hingev1 --z_dim=128 --Gscale=4 --adversarial_loss_mode=hinge_v1
+# Mnist+FashionMnist
 
+python train_multi_mnist.py --experiment_name=nd64_zDim128_hingev1_Mni_Fashion_3dFace --z_dim=128 --Gscale=4 --adversarial_loss_mode=hinge_v1
 
