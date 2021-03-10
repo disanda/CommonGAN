@@ -132,11 +132,10 @@ if __name__ == '__main__':
 	for ep in tqdm.trange(args.epochs, desc='Epoch Loop'):
 	    it_d, it_g = 0, 0
 	    for x_real in tqdm.tqdm(data_loader, desc='Inner Epoch Loop'):
-	        if args.dataset == 'mnist' or 'fashion_mnist':
+	        if args.dataset == ('mnist' or 'fashion_mnist'):
 	            x_real = x_real[0].to(device) # x_real[1]是标签
 	        else:
 	            x_real = x_real.to(device)
-	        print(x_real.shape)
 	        z = torch.randn(args.batch_size, args.z_dim, 1, 1).to(device)
 
 #--------training D-----------
