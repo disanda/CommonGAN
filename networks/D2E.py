@@ -84,7 +84,7 @@ class Discriminator(nn.Module):
             up_times = up_times - 1
 
         # 3: 4*4 > 1*1
-        layers.append(nn.Conv2d(hidden_dim, 1, kernel_size=4, stride=1, padding=0))
+        layers.append(nn.Conv2d(hidden_dim, input_dim, kernel_size=4, stride=1, padding=0))#输出维度
 
         # all:
         self.net = nn.Sequential(*layers)
