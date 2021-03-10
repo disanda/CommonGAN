@@ -136,6 +136,7 @@ if __name__ == '__main__':
 	            x_real = x_real[0].to(device) # x_real[1]是标签
 	        else:
 	            x_real = x_real.to(device)
+	        print(x_real.shape)
 	        z = torch.randn(args.batch_size, args.z_dim, 1, 1).to(device)
 
 #--------training D-----------
