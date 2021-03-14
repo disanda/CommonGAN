@@ -114,81 +114,81 @@ def sample(z):
 # ==============================================================================
 
 if __name__ == '__main__':
-	ckpt_dir = os.path.join(output_dir, 'checkpoints')
-	if not os.path.exists(ckpt_dir):
-	    os.mkdir(ckpt_dir)
+    ckpt_dir = os.path.join(output_dir, 'checkpoints')
+    if not os.path.exists(ckpt_dir):
+        os.mkdir(ckpt_dir)
 
-	# sample
-	sample_dir = os.path.join(output_dir, 'samples_training')
-	if not os.path.exists(sample_dir):
-		os.mkdir(sample_dir)
+    # sample
+    sample_dir = os.path.join(output_dir, 'samples_training')
+    if not os.path.exists(sample_dir):
+        os.mkdir(sample_dir)
 
-	# main loop
-	writer = tensorboardX.SummaryWriter(os.path.join(output_dir, 'summaries'))
-	z = torch.randn(32, args.z_dim, 1, 1).to(device)  # a fixed noise for sampling
+    # main loop
+    writer = tensorboardX.SummaryWriter(os.path.join(output_dir, 'summaries'))
+    z = torch.randn(32, args.z_dim, 1, 1).to(device)  # a fixed noise for sampling
 
-	G.train()
-	D.train()
-	for ep in tqdm.trange(args.epochs, desc='Epoch Loop'):
-	    it_d, it_g = 0, 0
-	    for x_real in tqdm.tqdm(data_loader, desc='Inner Epoch Loop'):
-	        if args.dataset == ('mnist' or 'fashion_mnist'):
-	            x_real = x_real[0].to(device) # x_real[1]是标签
-	        else:
-	            x_real = x_real.to(device)
-	        z = torch.randn(args.batch_size, args.z_dim, 1, 1).to(device)
+    G.train()
+    D.train()
+    for ep in tqdm.trange(args.epochs, desc='Epoch Loop'):
+        it_d, it_g = 0, 0
+        for x_real in tqdm.tqdm(data_loader, desc='Inner Epoch Loop'):
+            if args.dataset == ('mnist' or 'fashion_mnist'):
+                x_real = x_real[0].to(device) # x_real[1]是标签
+            else:
+                x_real = x_real.to(device)
+            z = torch.randn(args.batch_size, args.z_dim, 1, 1).to(device)
 
 #--------training D-----------
-	        x_fake = G(z)
-	        #print(x_real.shape)
-	        x_real_d_logit = D(x_real)
-	        x_fake_d_logit = D(x_fake.detach())
+            x_fake = G(z)
+            #print(x_real.shape)
+            x_real_d_logit = D(x_real)
+            x_fake_d_logit = D(x_fake.detach())
 
-	        x_real_d_loss, x_fake_d_loss = d_loss_fn(x_real_d_logit, x_fake_d_logit)
+            x_real_d_loss, x_fake_d_loss = d_loss_fn(x_real_d_logit, x_fake_d_logit)
 
-	        #gp = g_penal.gradient_penalty(functools.partial(D), x_real, x_fake.detach(), gp_mode=args.gradient_penalty_mode, sample_mode=args.gradient_penalty_sample_mode)
-	        gp = torch.tensor(0.0)
-	        D_loss = (x_real_d_loss + x_fake_d_loss) + gp * args.gradient_penalty_weight
-	        #D_loss = 1/(1+0.005*ep)*D_loss # 渐进式GP!
+            #gp = g_penal.gradient_penalty(functools.partial(D), x_real, x_fake.detach(), gp_mode=args.gradient_penalty_mode, sample_mode=args.gradient_penalty_sample_mode)
+            gp = torch.tensor(0.0)
+            D_loss = (x_real_d_loss + x_fake_d_loss) + gp * args.gradient_penalty_weight
+            #D_loss = 1/(1+0.005*ep)*D_loss # 渐进式GP!
 
-	        D.zero_grad()
-	        D_loss.backward()
-	        D_optimizer.step()
-	        #decayD.step()
+            D.zero_grad()
+            D_loss.backward()
+            D_optimizer.step()
+            #decayD.step()
 
-	        D_loss_dict={'d_loss': x_real_d_loss + x_fake_d_loss, 'gp': gp}
+            D_loss_dict={'d_loss': x_real_d_loss + x_fake_d_loss, 'gp': gp}
 
-	        it_d += 1
-	        for k, v in D_loss_dict.items():
-	            writer.add_scalar('D/%s' % k, v.data.cpu().numpy(), global_step=it_d)
+            it_d += 1
+            for k, v in D_loss_dict.items():
+                writer.add_scalar('D/%s' % k, v.data.cpu().numpy(), global_step=it_d)
 
 #-----------training G-----------
-	        x_fake_d_logit = D(x_fake)
-	        G_loss = g_loss_fn(x_fake_d_logit) #渐进式loss
-	        #G_loss = 1/(1+ep*0.01)*g_loss_fn(x_fake_d_logit) #渐进式loss
-	        G.zero_grad()
-	        G_loss.backward()
-	        G_optimizer.step()
-	        #decayG.step()
+            x_fake_d_logit = D(x_fake)
+            G_loss = g_loss_fn(x_fake_d_logit) #渐进式loss
+            #G_loss = 1/(1+ep*0.01)*g_loss_fn(x_fake_d_logit) #渐进式loss
+            G.zero_grad()
+            G_loss.backward()
+            G_optimizer.step()
+            #decayG.step()
 
-	        it_g += 1
-	        G_loss_dict = {'g_loss': G_loss}
-	        for k, v in G_loss_dict.items():
-	            writer.add_scalar('G/%s' % k, v.data.cpu().numpy(), global_step=it_g)
+            it_g += 1
+            G_loss_dict = {'g_loss': G_loss}
+            for k, v in G_loss_dict.items():
+                writer.add_scalar('G/%s' % k, v.data.cpu().numpy(), global_step=it_g)
 
 #--------------save---------------
-	        if (it_g)%100==0:
-	        #x_fake = (sample(z)+1)/2
-	            with torch.no_grad():
-	                z_t = torch.randn(64, args.z_dim, 1, 1).to(device)
-	                x_fake = sample(z_t)
-	                torchvision.utils.save_image(x_fake,sample_dir+'/ep%d_it%d.jpg'%(ep,it_g), nrow=8)
-	                with open(output_dir+'/loss.txt','a+') as f:
-	                    print('G_loss:'+str(G_loss)+'------'+'D_loss'+str(D_loss),file=f)
-	                    print('------------------------')
-	    # save checkpoint
-	    if (ep+1)%10==0:
+            if (it_g)%100==0:
+            #x_fake = (sample(z)+1)/2
+                with torch.no_grad():
+                    z_t = torch.randn(64, args.z_dim, 1, 1).to(device)
+                    x_fake = sample(z_t)
+                    torchvision.utils.save_image(x_fake,sample_dir+'/ep%d_it%d.jpg'%(ep,it_g), nrow=8)
+                    with open(output_dir+'/loss.txt','a+') as f:
+                        print('G_loss:'+str(G_loss)+'------'+'D_loss'+str(D_loss),file=f)
+                        print('------------------------')
+        # save checkpoint
+        if (ep+1)%10==0:   
             torch.save(G.state_dict(), ckpt_dir+'/Epoch_G.pth') #保存每次需要覆盖
             torch.save(D.state_dict(), ckpt_dir+'/Epoch_D.pth')
-	        #torch.save(G.state_dict(), ckpt_dir+'/Epoch_G_%d.pth' % ep)
-	        #torch.save(D.state_dict(), ckpt_dir+'/Epoch_D_%d.pth' % ep)
+            #torch.save(G.state_dict(), ckpt_dir+'/Epoch_G_%d.pth' % ep)
+            #torch.save(D.state_dict(), ckpt_dir+'/Epoch_D_%d.pth' % ep)
