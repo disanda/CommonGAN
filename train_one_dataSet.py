@@ -188,5 +188,7 @@ if __name__ == '__main__':
 	                    print('------------------------')
 	    # save checkpoint
 	    if (ep+1)%10==0:
-	        torch.save(G.state_dict(), ckpt_dir+'/Epoch_G_%d.pth' % ep)
-	        torch.save(D.state_dict(), ckpt_dir+'/Epoch_D_%d.pth' % ep)
+            torch.save(G.state_dict(), ckpt_dir+'/Epoch_G.pth') #保存每次需要覆盖
+            torch.save(D.state_dict(), ckpt_dir+'/Epoch_D.pth')
+	        #torch.save(G.state_dict(), ckpt_dir+'/Epoch_G_%d.pth' % ep)
+	        #torch.save(D.state_dict(), ckpt_dir+'/Epoch_D_%d.pth' % ep)
