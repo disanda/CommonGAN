@@ -138,8 +138,8 @@ if __name__ == '__main__':
                 x_real = x_real[0].to(device) # x_real[1]是标签
             else:
                 x_real = x_real.to(device)
-            z = torch.randn(args.batch_size, args.z_dim, 1, 1).to(device)
-
+            #z = torch.randn(args.batch_size, args.z_dim, 1, 1).to(device)
+            z = torch.randn(args.batch_size, args.z_dim, 4, 4).to(device) #PGGAN
 #--------training D-----------
             x_fake = G(z)
             #print(x_real.shape)
