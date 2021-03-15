@@ -82,7 +82,7 @@ class Generator(nn.Module):
         # 3:end 
         layers.append(EqualConv2d(512,256, kernel_size=4,stride=2, padding=1, bias=bias_flag))
         #PixelNormLayer()
-        layers.append(nn.ReLu())
+        layers.append(nn.ReLU())
 
 
         layers.append(EqualConv2d(256,3,kernel_size=3, padding=1, bias=bias_flag))
