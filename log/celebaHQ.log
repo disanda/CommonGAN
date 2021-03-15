@@ -13,3 +13,8 @@ python train_one_dataSet.py --experiment_name=img256 --dataset=celeba_HQ --img_s
 
 python train_one_dataSet.py --experiment_name=img256_output=Zdim --dataset=celeba_HQ --img_size=256 --z_dim=256 --Gscale=8 --Dscale=1
 # GD=2048, 但是D用的是BatchNorm D, 这一个版本是输出维度为1
+
+
+
+#--------------------PG----------------
+python train_one_dataSet.py --experiment_name=img256_PG --dataset=celeba_HQ --img_size=256 --z_dim=256
