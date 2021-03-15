@@ -17,4 +17,4 @@ python train_one_dataSet.py --experiment_name=img256_output=Zdim --dataset=celeb
 
 
 #--------------------PG----------------
-python train_one_dataSet.py --experiment_name=img256_PG --dataset=celeba_HQ --img_size=256 --z_dim=256
+python train_one_dataSet.py --experiment_name=img256_PG --dataset=celeba_HQ --img_size=256 --z_dim=512
