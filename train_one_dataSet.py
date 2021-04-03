@@ -78,9 +78,11 @@ D = net.Discriminator_SpectrualNorm(input_dim=args.z_dim, input_channels = args.
 
 with open(output_dir+'/net.txt','w+') as f:
     #if os.path.getsize(output_dir+'/net.txt') == 0: #判断文件是否为空
-        print(summary(G,(256,1,1)),file=f)
+        g_info = summary(G,(256,1,1))
+        d_info = summary(D,(3,256,256))
+        print(g_info,file=f)
         print('-------------------',file=f)
-        print(summary(D,(3,256,256)),file=f)
+        print(d_info,file=f)
 
 
 
