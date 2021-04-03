@@ -11,6 +11,7 @@ import data
 import networks.D2E as net
 import loss_func
 import g_penal
+from torchsummary import summary
 
 
 # ==============================================================================
@@ -70,27 +71,18 @@ print('data-size:    '+str(shape))
 # =                                   model                                    =
 # ==============================================================================
 
-#G = net.Generator(input_dim=args.z_dim, output_channels = args.img_channels, image_size=args.img_size, scale=args.Gscale).to(device)
-G = net.Generator().to(device)
-print(G)
-D = net.Discriminator().to(device)
-#D = net.Discriminator_SpectrualNorm(input_dim=args.z_dim, input_channels = args.img_channels, image_size=args.img_size, Gscale=args.Gscale, Dscale=args.Dscale).to(device)
-print(D)
-x,y = net.get_parameter_number(G),net.get_parameter_number(D)
-x_GB, y_GB = net.get_para_GByte(x),net.get_para_GByte(y)
-
+G = net.Generator(input_dim=args.z_dim, output_channels = args.img_channels, image_size=args.img_size, scale=args.Gscale).to(device)
+D = net.Discriminator_SpectrualNorm(input_dim=args.z_dim, input_channels = args.img_channels, image_size=args.img_size, Gscale=args.Gscale, Dscale=args.Dscale).to(device)
 #G.load_state_dict(torch.load('./pre-model/G_in256_G8.pth',map_location=device)) #shadow的效果要好一些 
 #D.load_state_dict(torch.load('./pre-model/D_in256_D4.pth',map_location=device))
 
 with open(output_dir+'/net.txt','w+') as f:
-	#if os.path.getsize(output_dir+'/net.txt') == 0: #判断文件是否为空
-		print(G,file=f)
-		print(x,file=f)
-		print(x_GB,file=f)
-		print('-------------------',file=f)
-		print(D,file=f)
-		print(y,file=f)
-		print(y_GB,file=f)
+    #if os.path.getsize(output_dir+'/net.txt') == 0: #判断文件是否为空
+        print(summary(G,(256,1,1)),file=f)
+        print('-------------------',file=f)
+        print(summary(D,(3,256,256)),file=f)
+
+
 
 # adversarial_loss_functions
 d_loss_fn, g_loss_fn = loss_func.get_adversarial_losses_fn(args.adversarial_loss_mode)
