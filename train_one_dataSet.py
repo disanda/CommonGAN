@@ -33,7 +33,7 @@ parser.add_argument('--img_size',type=int, default=256)
 parser.add_argument('--img_channels', type=int, default=3)# RGB:3 ,L:1
 parser.add_argument('--dataset', default='Celeba_HQ')#choices=['cifar10', 'fashion_mnist', 'mnist', 'celeba', 'anime', 'custom','Celeba_HQ'])
 parser.add_argument('--z_dim', type=int, default=256)
-parser.add_argument('--Gscale', type=int, default=16) # scale：网络隐藏层维度数,默认为 image_size//8 * image_size 
+parser.add_argument('--Gscale', type=int, default=8) # scale：网络隐藏层维度数,默认为 image_size//8 * image_size 
 parser.add_argument('--Dscale', type=int, default=1) 
 args = parser.parse_args()
 
@@ -75,16 +75,21 @@ G = net.Generator(input_dim=args.z_dim, output_channels = args.img_channels, ima
 D = net.Discriminator_SpectrualNorm(input_dim=args.z_dim, input_channels = args.img_channels, image_size=args.img_size, Gscale=args.Gscale, Dscale=args.Dscale).to(device)
 #G.load_state_dict(torch.load('./pre-model/G_in256_G8.pth',map_location=device)) #shadow的效果要好一些 
 #D.load_state_dict(torch.load('./pre-model/D_in256_D4.pth',map_location=device))
+summary(G,(256,1,1))
+summary(D,(3,256,256))
+x,y = net.get_parameter_number(G),net.get_parameter_number(D)
+x_GB, y_GB = net.get_para_GByte(x),net.get_para_GByte(y)
+
 
 with open(output_dir+'/net.txt','w+') as f:
     #if os.path.getsize(output_dir+'/net.txt') == 0: #判断文件是否为空
-        g_info = summary(G,(256,1,1))
-        d_info = summary(D,(3,256,256))
-        print(g_info,file=f)
+        print(G,file=f)
+        print(x,file=f)
+        print(x_GB,file=f)
         print('-------------------',file=f)
-        print(d_info,file=f)
-
-
+        print(D,file=f)
+        print(y,file=f)
+        print(y_GB,file=f)
 
 # adversarial_loss_functions
 d_loss_fn, g_loss_fn = loss_func.get_adversarial_losses_fn(args.adversarial_loss_mode)

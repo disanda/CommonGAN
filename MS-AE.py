@@ -38,29 +38,30 @@ G = net.Generator(input_dim=args.z_dim, output_channels = args.img_channels, ima
 D = net.Discriminator_SpectrualNorm(input_dim=args.z_dim, input_channels = args.img_channels, image_size=args.img_size, Gscale=args.Gscale, Dscale=args.Dscale).to(device)
 summary(G,(256,1,1))
 summary(D,(3,256,256))
-G.load_state_dict(torch.load('./pre-model/cat/cat256_Gs_dict.pth'))
+
+#G.load_state_dict(torch.load('./pre-model/cat/cat256_Gs_dict.pth'))
 
 
-def viz(module, input):
-    feature_num=10
-    x = input[0][0]
-    min_num = np.minimum(feature_num, x.size()[0])
-    for i in range(min_num):
-        plt.subplot(1, feature_num, i+1)
-        plt.imshow(x[i].cpu())
-    plt.show()
+# def viz(module, input):
+#     feature_num=10
+#     x = input[0][0]
+#     min_num = np.minimum(feature_num, x.size()[0])
+#     for i in range(min_num):
+#         plt.subplot(1, feature_num, i+1)
+#         plt.imshow(x[i].cpu())
+#     plt.show()
 
-def main():
-    for name,m in G.named_modules():
-        # print('------------')
-        # print(name)
-        # print(m)
-        if isinstance(m, torch.nn.ConvTranspose2d):
-            m.register_forward_pre_hook(viz)
-    z = torch.randn(6, args.z_dim, 1, 1).to(device)
-    with torch.no_grad():
-        img = G(z)
+# def main():
+#     for name,m in G.named_modules():
+#         # print('------------')
+#         # print(name)
+#         # print(m)
+#         if isinstance(m, torch.nn.ConvTranspose2d):
+#             m.register_forward_pre_hook(viz)
+#     z = torch.randn(6, args.z_dim, 1, 1).to(device)
+#     with torch.no_grad():
+#         img = G(z)
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()
 
