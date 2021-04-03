@@ -36,8 +36,10 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 G = net.Generator(input_dim=args.z_dim, output_channels = args.img_channels, image_size=args.img_size, scale=args.Gscale).to(device)
 D = net.Discriminator_SpectrualNorm(input_dim=args.z_dim, input_channels = args.img_channels, image_size=args.img_size, Gscale=args.Gscale, Dscale=args.Dscale).to(device)
-#summary(D,(3,256,256))
+summary(G,(256,1,1))
+summary(D,(3,256,256))
 G.load_state_dict(torch.load('./pre-model/cat/cat256_Gs_dict.pth'))
+
 
 def viz(module, input):
     feature_num=10
