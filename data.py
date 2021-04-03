@@ -68,7 +68,7 @@ def make_dataset(dataset_name, batch_size,img_size,drop_remainder=True, shuffle=
         crop = lambda x: x[:, offset_height:offset_height + crop_size, offset_width:offset_width + crop_size]# [image,height,width]
         dataset = DatasetFromFolder(path='',transform=transform_RGB)
         img_shape = (img_size, img_size, 3)
-    elif dataset_name == 'celeba_HQ':
+    elif dataset_name == 'Celeba_HQ':
         #path_a = 'F:/dataSet2/CelebAMask-HQ/CelebA-HQ-img' #家主机
         path_a = '/home/disanda/Desktop/dataSet/CelebAMask-HQ/img-30000/CelebA-HQ-img/' #学校个人主机
         #path_a = '/_yucheng/dataSet/CelebAMask-HQ/CelebAMask-HQ/CelebA-HQ-img' #云平台
