@@ -7,9 +7,8 @@ import argparse
 import os
 import yaml
 import torchvision
-
 import data
-import networks.D2E_PG as net
+import networks.D2E as net
 import loss_func
 import g_penal
 
