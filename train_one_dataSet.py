@@ -23,13 +23,13 @@ parser = argparse.ArgumentParser(description='the training args')
 parser.add_argument('--epochs', type=int, default=100)
 parser.add_argument('--lr', type=float, default=0.0002)
 parser.add_argument('--beta_1', type=float, default=0.5)
-parser.add_argument('--batch_size', type=int, default=60)
+parser.add_argument('--batch_size', type=int, default=30)
 parser.add_argument('--adversarial_loss_mode', default='gan', choices=['gan', 'hinge_v1', 'hinge_v2', 'lsgan', 'wgan'])
 parser.add_argument('--gradient_penalty_mode', default='none', choices=['none', '1-gp', '0-gp', 'lp'])
 parser.add_argument('--gradient_penalty_sample_mode', default='line', choices=['line', 'real', 'fake', 'dragan'])
 parser.add_argument('--gradient_penalty_weight', type=float, default=10.0)
 parser.add_argument('--experiment_name', default='none')
-parser.add_argument('--img_size',type=int, default=256)
+parser.add_argument('--img_size',type=int, default=512)
 parser.add_argument('--img_channels', type=int, default=3)# RGB:3 ,L:1
 parser.add_argument('--dataset', default='Celeba_HQ')#choices=['cifar10', 'fashion_mnist', 'mnist', 'celeba', 'anime', 'custom','Celeba_HQ'])
 parser.add_argument('--z_dim', type=int, default=256)
@@ -134,8 +134,8 @@ if __name__ == '__main__':
                 x_real = x_real[0].to(device) # x_real[1]是标签
             else:
                 x_real = x_real.to(device)
-            z = torch.randn(args.batch_size, args.z_dim, 1, 1).to(device)
-            #z = torch.randn(args.batch_size, args.z_dim, 4, 4).to(device) #PGGAN
+            #z = torch.randn(args.batch_size, args.z_dim, 1, 1).to(device)
+            z = torch.randn(args.batch_size, args.z_dim, 4, 4).to(device) #PGGAN
 #--------training D-----------
             x_fake = G(z)
             #print(x_real.shape)
