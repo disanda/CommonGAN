@@ -161,7 +161,8 @@ if __name__ == '__main__':
                 writer.add_scalar('D/%s' % k, v.data.cpu().numpy(), global_step=it_d)
 
 #-----------training G-----------
-            G_loss = g_loss_fn(x_fake_d_logit.mean()) #渐进式loss
+            x_fake_d_logit_2 = D(x_fake)
+            G_loss = g_loss_fn(x_fake_d_logit_2.mean()) #渐进式loss
             #G_loss = 1/(1+ep*0.01)*g_loss_fn(x_fake_d_logit) #渐进式loss
             G.zero_grad()
             G_loss.backward()
