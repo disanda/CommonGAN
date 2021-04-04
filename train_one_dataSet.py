@@ -134,15 +134,15 @@ if __name__ == '__main__':
                 x_real = x_real[0].to(device) # x_real[1]是标签
             else:
                 x_real = x_real.to(device)
-            #z = torch.randn(args.batch_size, args.z_dim, 1, 1).to(device)
-            z = torch.randn(args.batch_size, args.z_dim, 4, 4).to(device) #PGGAN
+            z = torch.randn(args.batch_size, args.z_dim, 1, 1).to(device)
+            #z = torch.randn(args.batch_size, args.z_dim, 4, 4).to(device) #PGGAN
 #--------training D-----------
             x_fake = G(z)
             #print(x_real.shape)
             x_real_d_logit = D(x_real)
             x_fake_d_logit = D(x_fake.detach())
 
-            x_real_d_loss, x_fake_d_loss = d_loss_fn(x_real_d_logit.mean(), x_fake_d_logit.mean())
+            x_real_d_loss, x_fake_d_loss = d_loss_fn(x_real_d_logit, x_fake_d_logit)
 
             #gp = g_penal.gradient_penalty(functools.partial(D), x_real, x_fake.detach(), gp_mode=args.gradient_penalty_mode, sample_mode=args.gradient_penalty_sample_mode)
             gp = torch.tensor(0.0)
@@ -162,7 +162,7 @@ if __name__ == '__main__':
 
 #-----------training G-----------
             x_fake_d_logit_2 = D(x_fake)
-            G_loss = g_loss_fn(x_fake_d_logit_2.mean()) #渐进式loss
+            G_loss = g_loss_fn(x_fake_d_logit_2) #渐进式loss
             #G_loss = 1/(1+ep*0.01)*g_loss_fn(x_fake_d_logit) #渐进式loss
             G.zero_grad()
             G_loss.backward()
