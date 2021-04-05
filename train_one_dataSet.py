@@ -36,6 +36,7 @@ parser.add_argument('--z_dim', type=int, default=512)
 parser.add_argument('--Gscale', type=int, default=4) # scale：网络隐藏层维度数,默认为 image_size//8 * image_size 
 parser.add_argument('--Dscale', type=int, default=1) 
 args = parser.parse_args()
+another_times_=1 #输入是4*4时需要
 
 # output_dir
 if args.experiment_name == 'none':
@@ -70,7 +71,6 @@ print('data-size:    '+str(shape))
 # ==============================================================================
 # =                                   model                                    =
 # ==============================================================================
-#another_times_=1 #输入是4*4时需要
 G = net.Generator(input_dim=args.z_dim, output_channels = args.img_channels, image_size=args.img_size, scale=args.Gscale, another_times=another_times_).to(device)
 D = net.Discriminator_SpectrualNorm(input_dim=args.z_dim, input_channels = args.img_channels, image_size=args.img_size, Gscale=args.Gscale, Dscale=args.Dscale, another_times=another_times_).to(device)
 #G.load_state_dict(torch.load('./pre-model/G_in256_G8.pth',map_location=device)) #shadow的效果要好一些 
