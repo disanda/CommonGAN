@@ -8,7 +8,7 @@ import os
 import yaml
 import torchvision
 import data
-import networks.D2E_44 as net
+import networks.D2E as net
 import loss_func
 import g_penal
 from torchsummary import summary
@@ -70,12 +70,12 @@ print('data-size:    '+str(shape))
 # ==============================================================================
 # =                                   model                                    =
 # ==============================================================================
-
-G = net.Generator(input_dim=args.z_dim, output_channels = args.img_channels, image_size=args.img_size, scale=args.Gscale, another_times=1).to(device)
-D = net.Discriminator_SpectrualNorm(input_dim=args.z_dim, input_channels = args.img_channels, image_size=args.img_size, Gscale=args.Gscale, Dscale=args.Dscale, another_times=1).to(device)
+another_times_=0
+G = net.Generator(input_dim=args.z_dim, output_channels = args.img_channels, image_size=args.img_size, scale=args.Gscale, another_times=another_times_).to(device)
+D = net.Discriminator_SpectrualNorm(input_dim=args.z_dim, input_channels = args.img_channels, image_size=args.img_size, Gscale=args.Gscale, Dscale=args.Dscale, another_times=another_times_).to(device)
 #G.load_state_dict(torch.load('./pre-model/G_in256_G8.pth',map_location=device)) #shadow的效果要好一些 
 #D.load_state_dict(torch.load('./pre-model/D_in256_D4.pth',map_location=device))
-summary(G,(512,4,4))
+summary(G,(512,1,1))
 summary(D,(3,512,512))
 x,y = net.get_parameter_number(G),net.get_parameter_number(D)
 x_GB, y_GB = net.get_para_GByte(x),net.get_para_GByte(y)
@@ -123,7 +123,6 @@ if __name__ == '__main__':
 
     # main loop
     writer = tensorboardX.SummaryWriter(os.path.join(output_dir, 'summaries'))
-    z = torch.randn(32, args.z_dim, 4, 4).to(device)  # a fixed noise for sampling
 
     G.train()
     D.train()
@@ -134,8 +133,8 @@ if __name__ == '__main__':
                 x_real = x_real[0].to(device) # x_real[1]是标签
             else:
                 x_real = x_real.to(device)
-            #z = torch.randn(args.batch_size, args.z_dim, 1, 1).to(device)
-            z = torch.randn(args.batch_size, args.z_dim, 4, 4).to(device) #PGGAN
+            z = torch.randn(args.batch_size, args.z_dim, 1, 1).to(device)
+            #z = torch.randn(args.batch_size, args.z_dim, 4, 4).to(device) #PGGAN
 #--------training D-----------
             x_fake = G(z)
             #print(x_real.shape)
@@ -176,10 +175,7 @@ if __name__ == '__main__':
 
 #--------------save---------------
             if (it_g)%100==0:
-            #x_fake = (sample(z)+1)/2
                 with torch.no_grad():
-                    z_t = torch.randn(32, args.z_dim, 4, 4).to(device)
-                    x_fake = sample(z_t)
                     torchvision.utils.save_image(x_fake,sample_dir+'/ep%d_it%d.jpg'%(ep,it_g), nrow=8)
                     with open(output_dir+'/loss.txt','a+') as f:
                         print('G_loss:'+str(G_loss)+'------'+'D_loss'+str(D_loss),file=f)

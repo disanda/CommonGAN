@@ -2,6 +2,7 @@
 
 # 上下采样均少一次
 # 数据输出口： 由 1*1->4*4 变为 4*4 -> 8*8 
+# 改进思路: 1.每一个上下采样加一个conv,  2.D变残差
 
 import torch
 from torch import nn
