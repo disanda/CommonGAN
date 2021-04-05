@@ -95,7 +95,7 @@ class Discriminator(nn.Module):
         return y # [1,1,1,1]
 
 class Discriminator_SpectrualNorm(nn.Module):
-    def __init__(self, input_dim=128, input_channels=3, image_size=128, Gscale=16, Dscale=1, another_times): #新版的Dscale是相对G缩小的倍数
+    def __init__(self, input_dim=128, input_channels=3, image_size=128, Gscale=16, Dscale=1, another_times=0): #新版的Dscale是相对G缩小的倍数
         super().__init__()
         layers=[]
         up_times = math.log(image_size,2)- 3 - another_times
