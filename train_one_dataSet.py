@@ -8,7 +8,7 @@ import os
 import yaml
 import torchvision
 import data
-import networks.D2E as net
+import networks.D2E_2Conv as net
 import loss_func
 import g_penal
 from torchsummary import summary
@@ -43,7 +43,7 @@ if args.experiment_name == 'none':
     if args.gradient_penalty_mode != 'none':
         args.experiment_name += '_%s_%s' % (args.gradient_penalty_mode, args.gradient_penalty_sample_mode)
 
-args.experiment_name += '_Gs%d_Ds%d_Zdim%d_imgSize%d_batch_size%d_4*4' % (args.Gscale, args.Dscale, args.z_dim, args.img_size,args.batch_size)
+args.experiment_name += '_Gs%d_Ds%d_Zdim%d_imgSize%d_batch_size%d_4*4_onemoreConv' % (args.Gscale, args.Dscale, args.z_dim, args.img_size,args.batch_size)
 
 output_dir = os.path.join('output', args.experiment_name)
 
@@ -70,12 +70,12 @@ print('data-size:    '+str(shape))
 # ==============================================================================
 # =                                   model                                    =
 # ==============================================================================
-another_times_=0
+#another_times_=1 #输入是4*4时需要
 G = net.Generator(input_dim=args.z_dim, output_channels = args.img_channels, image_size=args.img_size, scale=args.Gscale, another_times=another_times_).to(device)
 D = net.Discriminator_SpectrualNorm(input_dim=args.z_dim, input_channels = args.img_channels, image_size=args.img_size, Gscale=args.Gscale, Dscale=args.Dscale, another_times=another_times_).to(device)
 #G.load_state_dict(torch.load('./pre-model/G_in256_G8.pth',map_location=device)) #shadow的效果要好一些 
 #D.load_state_dict(torch.load('./pre-model/D_in256_D4.pth',map_location=device))
-summary(G,(512,1,1))
+summary(G,(512,4,4))
 summary(D,(3,512,512))
 x,y = net.get_parameter_number(G),net.get_parameter_number(D)
 x_GB, y_GB = net.get_para_GByte(x),net.get_para_GByte(y)
@@ -133,7 +133,7 @@ if __name__ == '__main__':
                 x_real = x_real[0].to(device) # x_real[1]是标签
             else:
                 x_real = x_real.to(device)
-            z = torch.randn(args.batch_size, args.z_dim, 1, 1).to(device)
+            z = torch.randn(args.batch_size, args.z_dim, 4, 4).to(device)
             #z = torch.randn(args.batch_size, args.z_dim, 4, 4).to(device) #PGGAN
 #--------training D-----------
             x_fake = G(z)
