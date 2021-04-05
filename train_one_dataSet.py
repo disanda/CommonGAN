@@ -123,7 +123,7 @@ if __name__ == '__main__':
 
     # main loop
     writer = tensorboardX.SummaryWriter(os.path.join(output_dir, 'summaries'))
-    z = torch.randn(32, args.z_dim, 1, 1).to(device)  # a fixed noise for sampling
+    z = torch.randn(32, args.z_dim, 4, 4).to(device)  # a fixed noise for sampling
 
     G.train()
     D.train()
@@ -178,7 +178,7 @@ if __name__ == '__main__':
             if (it_g)%100==0:
             #x_fake = (sample(z)+1)/2
                 with torch.no_grad():
-                    z_t = torch.randn(64, args.z_dim, 1, 1).to(device)
+                    z_t = torch.randn(32, args.z_dim, 4, 4).to(device)
                     x_fake = sample(z_t)
                     torchvision.utils.save_image(x_fake,sample_dir+'/ep%d_it%d.jpg'%(ep,it_g), nrow=8)
                     with open(output_dir+'/loss.txt','a+') as f:
