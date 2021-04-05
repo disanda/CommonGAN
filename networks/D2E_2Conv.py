@@ -27,7 +27,7 @@ class Generator(nn.Module):
         bias_flag = False
 
         # 1: 1x1 -> 4x4
-        layers.append(nn.ConvTranspose2d(input_dim, first_hidden_dim, kernel_size=4,stride=1,padding=0,bias=bias_flag))
+        layers.append(nn.ConvTranspose2d(input_dim, first_hidden_dim, kernel_size=4,stride=2,padding=1,bias=bias_flag))
         layers.append(nn.BatchNorm2d(first_hidden_dim))
         layers.append(nn.ReLU())
 
@@ -71,7 +71,7 @@ class Discriminator_SpectrualNorm(nn.Module):
         layers.append(nn.LeakyReLU(0.2, inplace=True))
 
         # 2: 64*64 > 4*4
-        hidden_dim = first_hidden_dim//2
+        hidden_dim = first_hidden_dim
         while up_times>0:  
             layers.append(spectral_norm(nn.Conv2d(hidden_dim, hidden_dim*2, kernel_size=4, stride=2, padding=1, bias=bias_flag)))
             layers.append(nn.LeakyReLU(0.2, inplace=True))
@@ -79,7 +79,7 @@ class Discriminator_SpectrualNorm(nn.Module):
             up_times = up_times - 1
 
         # 3: 4*4 > 1*1
-        layers.append(nn.Conv2d(hidden_dim, input_dim, kernel_size=4, stride=1, padding=0))
+        layers.append(nn.Conv2d(hidden_dim, input_dim, kernel_size=4, stride=2, padding=1))
 
         # all:
         self.net = nn.Sequential(*layers)
