@@ -70,8 +70,8 @@ def make_dataset(dataset_name, batch_size,img_size,drop_remainder=True, shuffle=
         img_shape = (img_size, img_size, 3)
     elif dataset_name == 'Celeba_HQ':
         #path_a = 'F:/dataSet2/CelebAMask-HQ/CelebA-HQ-img' #家主机
-        #path_a = '/home/disanda/Desktop/dataSet/CelebAMask-HQ/img-30000/CelebA-HQ-img/' #学校个人主机
-        path_a = '/_yucheng/dataSet/CelebAMask-HQ/CelebAMask-HQ/CelebA-HQ-img' #云平台
+        path_a = '/home/disanda/Desktop/dataSet/CelebAMask-HQ/img-30000/CelebA-HQ-img/' #学校个人主机
+        #path_a = '/_yucheng/dataSet/CelebAMask-HQ/CelebAMask-HQ/CelebA-HQ-img' #云平台
         #path_a = '/_wmwang/dataSet/CelebAMask-HQ/CelebAMask-HQ/CelebA-HQ-img'
         dataset = DatasetFromFolder(path=path_a,transform=transform_RGB,channels=3)
         img_shape = (img_size, img_size, 3)
