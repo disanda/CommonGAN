@@ -37,7 +37,7 @@ def get_hinge_v2_losses_fn():
         return f_loss
     return d_loss_fn, g_loss_fn
 
-def get_lsgan_losses_fn():
+def get_lsgan_losses_fn(): #这个写的有点问题，应该不是ones和zeros
     mse = torch.nn.MSELoss()
 
     def d_loss_fn(r_logit, f_logit):
@@ -50,7 +50,6 @@ def get_lsgan_losses_fn():
         return f_loss
 
     return d_loss_fn, g_loss_fn
-
 
 def get_wgan_losses_fn():
     def d_loss_fn(r_logit, f_logit):
@@ -77,6 +76,30 @@ def get_adversarial_losses_fn(mode):
     elif mode == 'wgan':
         return get_wgan_losses_fn()
 
+
+def multiScale_loss(x,x_):
+    loss_mse = torch.nn.MSELoss()
+    loss_lpips = lpips.LPIPS(net='vgg').to('cuda') 
+    loss_kl = torch.nn.KLDivLoss()
+
+    l1 = mse(x,x_)
+
+    logit_x, logit_x_ = torch.nn.functional.softmax(x), torch.nn.functional.softmax(logit_x_)
+    l2 = loss_kl(torch.log(x_),x)
+    l2 = torch.where(torch.isnan(l2),torch.full_like(l2,0),l2)
+    l2 = torch.where(torch.isinf(l2),torch.full_like(l2,1),l2)
+
+    #vector_x, vector_x_ = x.view(-1), x_.view(-1)
+    #l3 = abs(1-vector_x.dot(vector_x_)/(torch.sqrt(vector_x.dot(vector_x))*torch.sqrt(vector_x_.dot(vector_x_))))
+    l3 = (1-abs(torch.cosine_similarity(x.view(x.shape[0],-1),x_.view(x.shape[0],-1)))).mean()
+
+    print('l1,l2,l3:')
+    print(l1)
+    print(l2)
+    print(l3)
+    l = l1+l2+l3
+
+#--------------后面的几个loss用于10张pose生成新的pose-------------------
 def get_hinge_v2_1_losses_fn():
     def d_loss_fn(r_logit, f_logit):
         r_loss = torch.max(0.5- r_logit, torch.zeros_like(r_logit)).mean()

@@ -8,7 +8,7 @@ import os
 import yaml
 import torchvision
 import data
-import networks.D2E_2Conv as net
+import networks.D2E as net
 import loss_func
 import g_penal
 from torchsummary import summary
@@ -44,7 +44,7 @@ if args.experiment_name == 'none':
     if args.gradient_penalty_mode != 'none':
         args.experiment_name += '_%s_%s' % (args.gradient_penalty_mode, args.gradient_penalty_sample_mode)
 
-args.experiment_name += '_Gs%d_Ds%d_Zdim%d_imgSize%d_batch_size%d_4*4_onemoreConv_4x4_SymeArch' % (args.Gscale, args.Dscale, args.z_dim, args.img_size,args.batch_size)
+args.experiment_name += '_Gs%d_Ds%d_Zdim%d_imgSize%d_batch_size%d_4*4_onemoreConv_4x4_SymeArch_no3*3' % (args.Gscale, args.Dscale, args.z_dim, args.img_size,args.batch_size)
 
 output_dir = os.path.join('output', args.experiment_name)
 
@@ -98,6 +98,7 @@ d_loss_fn, g_loss_fn = loss_func.get_adversarial_losses_fn(args.adversarial_loss
 # optimizer
 G_optimizer = torch.optim.Adam(G.parameters(), lr=args.lr, betas=(args.beta_1, 0.999))
 D_optimizer = torch.optim.Adam(D.parameters(), lr=args.lr, betas=(args.beta_1, 0.999))
+info_optimizer = optim.Adam(itertools.chain(G.parameters(), D.parameters()),lr=0.0001,betas=(0.6, 0.95),amsgrad=True)#G,D都更新
 #decayG = torch.optim.lr_scheduler.ExponentialLR(G_optimizer, gamma=1)
 #decayD = torch.optim.lr_scheduler.ExponentialLR(D_optimizer, gamma=1)
 
@@ -172,6 +173,12 @@ if __name__ == '__main__':
             G_loss_dict = {'g_loss': G_loss}
             for k, v in G_loss_dict.items():
                 writer.add_scalar('G/%s' % k, v.data.cpu().numpy(), global_step=it_g)
+
+#-----------training GD----------
+            
+
+
+
 
 #--------------save---------------
             if (it_g)%100==0:
