@@ -36,7 +36,7 @@ parser.add_argument('--z_dim', type=int, default=512)
 parser.add_argument('--Gscale', type=int, default=2) # scale：网络隐藏层维度数,默认为 image_size//8 * image_size 
 parser.add_argument('--Dscale', type=int, default=1) 
 args = parser.parse_args()
-another_times_=0 #调整卷积层数
+another_times_=1 #减少的卷积层数，用于输入为4*4
 
 # output_dir
 if args.experiment_name == 'none':

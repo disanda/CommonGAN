@@ -33,7 +33,7 @@ class Generator(nn.Module):
     def __init__(self, input_dim=128, output_channels=3, image_size=128, scale=16, another_times=0):
         super().__init__()
         layers = []
-        up_times = math.log(image_size,2)- 2 - another_times # 减去前两次 1->2->4， 及最后一次， 方便中间写循环
+        up_times = math.log(image_size,2)- 3 - another_times # 减去前两次 1->2->4， 及最后一次， 方便中间写循环
         first_hidden_dim = image_size*scale # 这里对应输入维度，表示《输入维度》对应《网络中间层维度（起点）》的放大倍数
         bias_flag = False
 
@@ -99,7 +99,7 @@ class Discriminator_SpectrualNorm(nn.Module):
     def __init__(self, input_dim=128, input_channels=3, image_size=128, Gscale=16, Dscale=1, another_times=0): #新版的Dscale是相对G缩小的倍数
         super().__init__()
         layers=[]
-        up_times = math.log(image_size,2)- 2 - another_times
+        up_times = math.log(image_size,2)- 3 - another_times
         first_hidden_dim = (image_size * Gscale// 2**int(up_times)) // Dscale # 默认为input_dim 
         bias_flag = False
 
