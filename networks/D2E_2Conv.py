@@ -41,11 +41,11 @@ class Generator(nn.Module):
             hidden_dim = hidden_dim // 2
 
         # 3:end
-        layers.append(nn.ConvTranspose2d(hidden_dim, hidden_dim//2, kernel_size=3, stride=1, padding=1 ,bias=bias_flag))
+        layers.append(nn.ConvTranspose2d(hidden_dim, hidden_dim//2, kernel_size=4, stride=2, padding=1, bias=bias_flag))
         layers.append(nn.BatchNorm2d(hidden_dim//2))
         layers.append(nn.ReLU())
 
-        layers.append(nn.ConvTranspose2d(hidden_dim//2,output_channels,kernel_size=4, stride=2, padding=1, bias=bias_flag))
+        layers.append(nn.ConvTranspose2d(hidden_dim//2, output_channels, kernel_size=3, stride=1, padding=1 ,bias=bias_flag))
         layers.append(nn.Tanh())
 
         # all
@@ -65,15 +65,15 @@ class Discriminator_SpectrualNorm(nn.Module):
 
         # 1:
 
-        layers.append(spectral_norm(nn.Conv2d(input_channels, first_hidden_dim//2, kernel_size=3, stride=1, padding=1, bias=bias_flag)))
+        layers.append(spectral_norm(nn.Conv2d(input_channels, first_hidden_dim, kernel_size=3, stride=1, padding=1, bias=bias_flag)))
         layers.append(nn.LeakyReLU(0.2, inplace=True))
 
-        layers.append(spectral_norm(nn.Conv2d(first_hidden_dim//2, first_hidden_dim, kernel_size=4, stride=2, padding=1, bias=bias_flag)))
+        layers.append(spectral_norm(nn.Conv2d(first_hidden_dim, first_hidden_dim*2, kernel_size=4, stride=2, padding=1, bias=bias_flag)))
         layers.append(nn.LeakyReLU(0.2, inplace=True))
 
 
         # 2: 64*64 > 4*4
-        hidden_dim = first_hidden_dim
+        hidden_dim = first_hidden_dim * 2
         while up_times>0:  
             layers.append(spectral_norm(nn.Conv2d(hidden_dim, hidden_dim*2, kernel_size=4, stride=2, padding=1, bias=bias_flag)))
             layers.append(nn.LeakyReLU(0.2, inplace=True))
