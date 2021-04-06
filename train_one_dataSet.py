@@ -76,7 +76,7 @@ D = net.Discriminator_SpectrualNorm(input_dim=args.z_dim, input_channels = args.
 #G.load_state_dict(torch.load('./pre-model/G_in256_G8.pth',map_location=device)) #shadow的效果要好一些 
 #D.load_state_dict(torch.load('./pre-model/D_in256_D4.pth',map_location=device))
 summary(G,(512,4,4))
-summary(D,(3,512,512))
+summary(D,(3,1024,1024))
 x,y = net.get_parameter_number(G),net.get_parameter_number(D)
 x_GB, y_GB = net.get_para_GByte(x),net.get_para_GByte(y)
 
