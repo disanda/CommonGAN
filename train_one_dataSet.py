@@ -8,7 +8,7 @@ import os
 import yaml
 import torchvision
 import data
-import networks.D2E_2Conv as net
+import networks.D2E as net
 import loss_func
 import g_penal
 from torchsummary import summary
