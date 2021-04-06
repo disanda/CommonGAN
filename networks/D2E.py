@@ -2,8 +2,9 @@
 
 # 1. 以及不同分辨率的对应不同上采样数(即网络的层数)，默认第一次上采样，像素从 1->4。 之后每一次上采样，像素增加一倍(这里应该是长宽都增加一倍).
 # 2. input_dim 对应G的《输入维度》，image_size表示《生成图片对应的像素》, first_hidden_dim对应《网络中间层维度》(中间层起点的维度)
-# 3. scale是input_dim放大的倍数，用于决定中间隐藏层起始时的size, 其和input_dim共同决定网络参数的规模.
-# 4. 如果希望G的输入维度 和 D的输出维度对称, 则 first_hidden_dim = input_dim * scale
+# 3. scale是image_size放大的倍数，用于决定中间隐藏层起始时的size
+# 4. Dscale是D网络相对G的比例, 若 Dscale=1，则G和D的参数比例为 1:1, Dscale越大，D参数相对越小
+# 5.第1版，D2E ,E的参数和G完全相同，D即输入和G输入对应,输入数据维度为 input_dim*1*1
 
 # 测试网络规模:
 # import networks.network_1 as net
@@ -12,7 +13,6 @@
 # x,y = net.get_parameter_number(G),net.get_parameter_number(D)
 # x_G, y_G = net.get_para_GByte(G),net.get_para_GByte(D)
 
-#第1版，D2E ,E的参数和G完全相同，即输入和G输入对应
 
 import torch
 from torch import nn
@@ -33,7 +33,7 @@ class Generator(nn.Module):
     def __init__(self, input_dim=128, output_channels=3, image_size=128, scale=16, another_times=0):
         super().__init__()
         layers = []
-        up_times = math.log(image_size,2)- 3 - another_times # 减去前两次 1->2->4， 及最后一次， 方便中间写循环
+        up_times = math.log(image_size,2)- 2 - another_times # 减去前两次 1->2->4， 及最后一次， 方便中间写循环
         first_hidden_dim = image_size*scale # 这里对应输入维度，表示《输入维度》对应《网络中间层维度（起点）》的放大倍数
         bias_flag = False
 
@@ -98,7 +98,7 @@ class Discriminator_SpectrualNorm(nn.Module):
     def __init__(self, input_dim=128, input_channels=3, image_size=128, Gscale=16, Dscale=1, another_times=0): #新版的Dscale是相对G缩小的倍数
         super().__init__()
         layers=[]
-        up_times = math.log(image_size,2)- 3 - another_times
+        up_times = math.log(image_size,2)- 2 - another_times
         first_hidden_dim = (image_size * Gscale// 2**int(up_times)) // Dscale # 默认为input_dim 
         bias_flag = False
 

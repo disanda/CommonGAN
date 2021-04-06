@@ -1,5 +1,5 @@
 # ----------自己写的一套DCGAN网络，可以通过图像分辨率调整网络参数，包括输入维度，中间维度.--------
-#在 512 * 512 分辨率上, 4*4输入测试: 
+#在 512 * 512 分辨率上, input_dim*4*4输入测试: 
 #在特征较少的block上再加一层conv, torch.nn.Conv2d(3,5,3,1,1)
 #其他改进: a.加残差 b.加AE训练
 
@@ -64,11 +64,13 @@ class Discriminator_SpectrualNorm(nn.Module):
         bias_flag = False
 
         # 1:
-        layers.append(spectral_norm(nn.Conv2d(input_channels, first_hidden_dim, kernel_size=4, stride=2, padding=1, bias=bias_flag)))
+
+        layers.append(spectral_norm(nn.Conv2d(input_channels, first_hidden_dim//2, kernel_size=3, stride=1, padding=1, bias=bias_flag)))
         layers.append(nn.LeakyReLU(0.2, inplace=True))
 
-        layers.append(spectral_norm(nn.Conv2d(first_hidden_dim, first_hidden_dim//2, kernel_size=3, stride=1, padding=1, bias=bias_flag)))
+        layers.append(spectral_norm(nn.Conv2d(first_hidden_dim//2, first_hidden_dim, kernel_size=4, stride=2, padding=1, bias=bias_flag)))
         layers.append(nn.LeakyReLU(0.2, inplace=True))
+
 
         # 2: 64*64 > 4*4
         hidden_dim = first_hidden_dim
