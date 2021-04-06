@@ -29,11 +29,11 @@ parser.add_argument('--gradient_penalty_mode', default='none', choices=['none', 
 parser.add_argument('--gradient_penalty_sample_mode', default='line', choices=['line', 'real', 'fake', 'dragan'])
 parser.add_argument('--gradient_penalty_weight', type=float, default=10.0)
 parser.add_argument('--experiment_name', default='none')
-parser.add_argument('--img_size',type=int, default=512)
+parser.add_argument('--img_size',type=int, default=1024)
 parser.add_argument('--img_channels', type=int, default=3)# RGB:3 ,L:1
 parser.add_argument('--dataset', default='Celeba_HQ')#choices=['cifar10', 'fashion_mnist', 'mnist', 'celeba', 'anime', 'custom','Celeba_HQ'])
 parser.add_argument('--z_dim', type=int, default=512)
-parser.add_argument('--Gscale', type=int, default=4) # scale：网络隐藏层维度数,默认为 image_size//8 * image_size 
+parser.add_argument('--Gscale', type=int, default=2) # scale：网络隐藏层维度数,默认为 image_size//8 * image_size 
 parser.add_argument('--Dscale', type=int, default=1) 
 args = parser.parse_args()
 another_times_=1 #输入是4*4时需要
@@ -176,7 +176,7 @@ if __name__ == '__main__':
 #--------------save---------------
             if (it_g)%100==0:
                 with torch.no_grad():
-                    torchvision.utils.save_image(x_fake,sample_dir+'/ep%d_it%d.jpg'%(ep,it_g), nrow=args.batch_size//4)
+                    torchvision.utils.save_image(x_fake,sample_dir+'/ep%d_it%d.jpg'%(ep,it_g), nrow=args.batch_size//5)
                     with open(output_dir+'/loss.txt','a+') as f:
                         print('G_loss:'+str(G_loss)+'------'+'D_loss'+str(D_loss),file=f)
                         print('------------------------')
