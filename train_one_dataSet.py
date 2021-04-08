@@ -8,7 +8,7 @@ import os
 import yaml
 import torchvision
 import data
-import networks.D2E as net
+import networks.D2E_FT as net
 import loss_func
 import g_penal
 from torchsummary import summary
@@ -23,7 +23,7 @@ parser = argparse.ArgumentParser(description='the training args')
 parser.add_argument('--epochs', type=int, default=100)
 parser.add_argument('--lr', type=float, default=0.0002)
 parser.add_argument('--beta_1', type=float, default=0.5)
-parser.add_argument('--batch_size', type=int, default=15)
+parser.add_argument('--batch_size', type=int, default=20)
 parser.add_argument('--adversarial_loss_mode', default='gan', choices=['gan', 'hinge_v1', 'hinge_v2', 'lsgan', 'wgan'])
 parser.add_argument('--gradient_penalty_mode', default='none', choices=['none', '1-gp', '0-gp', 'lp'])
 parser.add_argument('--gradient_penalty_sample_mode', default='line', choices=['line', 'real', 'fake', 'dragan'])
@@ -44,7 +44,7 @@ if args.experiment_name == 'none':
     if args.gradient_penalty_mode != 'none':
         args.experiment_name += '_%s_%s' % (args.gradient_penalty_mode, args.gradient_penalty_sample_mode)
 
-args.experiment_name += '_Gs%d_Ds%d_Zdim%d_imgSize%d_batch_size%d_4x4_SymeArch_no3*3' % (args.Gscale, args.Dscale, args.z_dim, args.img_size,args.batch_size)
+args.experiment_name += '_Gs%d_Ds%d_Zdim%d_imgSize%d_batch_size%d_1*1_FT_Param' % (args.Gscale, args.Dscale, args.z_dim, args.img_size,args.batch_size)
 
 output_dir = os.path.join('output', args.experiment_name)
 
@@ -71,12 +71,14 @@ print('data-size:    '+str(shape))
 # ==============================================================================
 # =                                   model                                    =
 # ==============================================================================
-G = net.Generator(input_dim=args.z_dim, output_channels = args.img_channels, image_size=args.img_size, scale=args.Gscale, another_times=another_times_).to(device)
-D = net.Discriminator_SpectrualNorm(input_dim=args.z_dim, input_channels = args.img_channels, image_size=args.img_size, Gscale=args.Gscale, Dscale=args.Dscale, another_times=another_times_).to(device)
+#G = net.Generator(input_dim=args.z_dim, output_channels = args.img_channels, image_size=args.img_size, scale=args.Gscale, another_times=another_times_).to(device)
+#D = net.Discriminator_SpectrualNorm(input_dim=args.z_dim, input_channels = args.img_channels, image_size=args.img_size, Gscale=args.Gscale, Dscale=args.Dscale, another_times=another_times_).to(device)
+G = net.Generator()
+D = net.Discriminator_SpectrualNorm()
 #G.load_state_dict(torch.load('./pre-model/G_in256_G8.pth',map_location=device)) #shadow的效果要好一些 
 #D.load_state_dict(torch.load('./pre-model/D_in256_D4.pth',map_location=device))
-summary(G,(512,4,4))
-summary(D,(3,1024,1024))
+summary(G,(512,1,1))
+summary(D,(3,512,512))
 x,y = net.get_parameter_number(G),net.get_parameter_number(D)
 x_GB, y_GB = net.get_para_GByte(x),net.get_para_GByte(y)
 
@@ -175,7 +177,7 @@ if __name__ == '__main__':
                 writer.add_scalar('G/%s' % k, v.data.cpu().numpy(), global_step=it_g)
 
 #-----------training GD----------
-            
+
 
 
 

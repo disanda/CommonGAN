@@ -78,9 +78,10 @@ def get_adversarial_losses_fn(mode):
 
 
 def multiScale_loss(x,x_):
-    loss_mse = torch.nn.MSELoss()
+    loss_mse = torch.nn.MSELoss().cuda()
     loss_lpips = lpips.LPIPS(net='vgg').to('cuda') 
-    loss_kl = torch.nn.KLDivLoss()
+    loss_kl = torch.nn.KLDivLoss()..cuda()
+    loss_ce = nn.CrossEntropyLoss().cuda()
 
     l1 = mse(x,x_)
 
@@ -93,11 +94,14 @@ def multiScale_loss(x,x_):
     #l3 = abs(1-vector_x.dot(vector_x_)/(torch.sqrt(vector_x.dot(vector_x))*torch.sqrt(vector_x_.dot(vector_x_))))
     l3 = (1-abs(torch.cosine_similarity(x.view(x.shape[0],-1),x_.view(x.shape[0],-1)))).mean()
 
-    print('l1,l2,l3:')
+    l4 = loss_ce(x,x_)
+
+    print('l1,l2,l3,l4:')
     print(l1)
     print(l2)
     print(l3)
-    l = l1+l2+l3
+    print(l4)
+    l = l1+l2+l3+l4
 
 #--------------后面的几个loss用于10张pose生成新的pose-------------------
 def get_hinge_v2_1_losses_fn():
