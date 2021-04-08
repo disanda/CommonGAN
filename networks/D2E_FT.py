@@ -15,6 +15,9 @@ def get_para_GByte(parameter_number):
      y=parameter_number['Total']*8/1024/1024/1024
      return {'Total_GB': x, 'Trainable_BG': y}
 
+def pixel_norm(x, epsilon=1e-8):
+    return x * torch.rsqrt(torch.mean(x.pow(2.0), dim=1, keepdim=True) + epsilon)
+
 class Generator(nn.Module):
     def __init__(self, input_dim=512, output_channels=3, image_size=512, first_hidden_dim_ = 512, last_hidden_dim_ =64, another_times=0):
         super().__init__()
@@ -26,7 +29,8 @@ class Generator(nn.Module):
         # 1: 
         layers.append(nn.ConvTranspose2d(input_dim, first_hidden_dim, kernel_size=4,stride=1,padding=0,bias=bias_flag)) # 1*1 input -> 4*4
         #layers.append(nn.ConvTranspose2d(input_dim, first_hidden_dim, kernel_size=4,stride=2,padding=1,bias=bias_flag)) # 4*4 input -> 8*8
-        layers.append(nn.BatchNorm2d(first_hidden_dim))
+        #layers.append(nn.BatchNorm2d(first_hidden_dim))
+        layers.append(nn.InstanceNorm2d(first_hidden_dim, affine=False, eps=1e-8))
         layers.append(nn.ReLU())
 
         # 2: upsamplings, 4x4 -> 8x8 -> 16x16 -> 32*32
@@ -34,12 +38,14 @@ class Generator(nn.Module):
         while up_times>0:
             if up_times < (math.log(first_hidden_dim_,2) - math.log(last_hidden_dim_,2)+1):
                 layers.append(nn.ConvTranspose2d(hidden_dim, hidden_dim//2, kernel_size=4, stride=2, padding=1 ,bias=bias_flag))
-                layers.append(nn.BatchNorm2d(hidden_dim//2))
+                #layers.append(nn.BatchNorm2d(hidden_dim//2))
+                layers.append(nn.InstanceNorm2d(hidden_dim//2, affine=False, eps=1e-8))
                 layers.append(nn.ReLU())
                 hidden_dim = hidden_dim // 2
             else:
                 layers.append(nn.ConvTranspose2d(hidden_dim, hidden_dim, kernel_size=4, stride=2, padding=1 ,bias=bias_flag))
-                layers.append(nn.BatchNorm2d(hidden_dim))
+                #layers.append(nn.BatchNorm2d(hidden_dim))
+                layers.append(nn.InstanceNorm2d(hidden_dim, affine=False, eps=1e-8))
                 layers.append(nn.ReLU())
             up_times = up_times - 1
 
