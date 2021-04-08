@@ -69,18 +69,24 @@ class Discriminator_SpectrualNorm(nn.Module):
         bias_flag = False
 
         # 1:
-        layers.append(spectral_norm(nn.Conv2d(input_channels, first_hidden_dim, kernel_size=4, stride=2, padding=1, bias=bias_flag)))
+        #layers.append(spectral_norm(nn.Conv2d(input_channels, first_hidden_dim, kernel_size=4, stride=2, padding=1, bias=bias_flag)))
+        layers.append(nn.Conv2d(input_channels, first_hidden_dim, kernel_size=4, stride=2, padding=1, bias=bias_flag))
+        layers.append(nn.InstanceNorm2d(first_hidden_dim, affine=False, eps=1e-8))
         layers.append(nn.LeakyReLU(0.2, inplace=True))
 
         # 2: 64*64 > 4*4
         hidden_dim = first_hidden_dim
         while up_times>0:  
             if hidden_dim < last_hidden_dim_:
-                layers.append(spectral_norm(nn.Conv2d(hidden_dim, hidden_dim*2, kernel_size=4, stride=2, padding=1, bias=bias_flag)))
+                #layers.append(spectral_norm(nn.Conv2d(hidden_dim, hidden_dim*2, kernel_size=4, stride=2, padding=1, bias=bias_flag)))
+                layers.append(nn.Conv2d(hidden_dim, hidden_dim*2, kernel_size=4, stride=2, padding=1, bias=bias_flag))
+                layers.append(nn.InstanceNorm2d(hidden_dim*2, affine=False, eps=1e-8))
                 layers.append(nn.LeakyReLU(0.2, inplace=True))
                 hidden_dim = hidden_dim * 2
             else:
-                layers.append(spectral_norm(nn.Conv2d(hidden_dim, hidden_dim, kernel_size=4, stride=2, padding=1, bias=bias_flag)))
+                #layers.append(spectral_norm(nn.Conv2d(hidden_dim, hidden_dim, kernel_size=4, stride=2, padding=1, bias=bias_flag)))
+                layers.append(nn.Conv2d(hidden_dim, hidden_dim, kernel_size=4, stride=2, padding=1, bias=bias_flag))
+                layers.append(nn.InstanceNorm2d(hidden_dim, affine=False, eps=1e-8))
                 layers.append(nn.LeakyReLU(0.2, inplace=True))
             up_times = up_times - 1
         # 3:
