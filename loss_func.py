@@ -79,7 +79,7 @@ def get_adversarial_losses_fn(mode):
 
 def multiScale_loss(x,x_):
     loss_mse = torch.nn.MSELoss()
-    loss_lpips = lpips.LPIPS(net='vgg')
+    loss_lpips = lpips.LPIPS(net='vgg').to('cuda')
     loss_kl = torch.nn.KLDivLoss()
     loss_ce = torch.nn.CrossEntropyLoss()
 
