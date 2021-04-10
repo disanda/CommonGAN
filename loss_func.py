@@ -104,7 +104,8 @@ def multiScale_loss(x,x_):
     print(l3)
     #print(l4)
     print(l5)
-    return l1+l2+l3+l5
+    l = l1+l2+l3+l5
+    return l
 
 #--------------后面的几个loss用于10张pose生成新的pose-------------------
 def get_hinge_v2_1_losses_fn():
