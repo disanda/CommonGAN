@@ -13,6 +13,7 @@ import loss_func
 import g_penal
 from torchsummary import summary
 import itertools
+import lpips
 
 # ==============================================================================
 # =                                   param                                    =
@@ -178,7 +179,17 @@ if __name__ == '__main__':
 
 #-----------training GD----------
             with torch.autograd.set_detect_anomaly(True):
-                D2E_loss=loss_func.multiScale_loss(x_real,x_fake)
+                loss_mse = torch.nn.MSELoss()
+                loss_lpips = lpips.LPIPS(net='vgg').to('cuda')
+                loss_kl = torch.nn.KLDivLoss()
+                loss_ce = torch.nn.CrossEntropyLoss()
+                l1 = loss_mse(x_real,x_fake)
+                l2 = (1-abs(torch.cosine_similarity(x_real.view(x_real.shape[0],-1),x_fake.view(x_fake.shape[0],-1))))
+                l3 = loss_lpips(x_real,x_fake).mean()
+                D2E_loss=l1+l2+l3
+                print(l1)
+                print(l2)
+                print(l3)
                 D2E_loss.backward()
                 D2E_optimizer.step()
 
