@@ -81,7 +81,7 @@ def multiScale_loss(x,x_):
     loss_mse = torch.nn.MSELoss().cuda()
     loss_lpips = lpips.LPIPS(net='vgg').to('cuda') 
     loss_kl = torch.nn.KLDivLoss().cuda()
-    loss_ce = nn.CrossEntropyLoss().cuda()
+    loss_ce = torch.nn.CrossEntropyLoss().cuda()
 
     l1 = mse(x,x_)
 
