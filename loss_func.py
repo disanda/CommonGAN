@@ -105,7 +105,6 @@ def multiScale_loss(x,x_):
     #print(l4)
     print(l5)
     l = l1+l2+l3+l5
-    l = l.mean()
     return l
 
 #--------------后面的几个loss用于10张pose生成新的pose-------------------

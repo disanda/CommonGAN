@@ -179,7 +179,7 @@ if __name__ == '__main__':
 #-----------training GD----------
             D2E_loss=loss_func.multiScale_loss(x_real,x_fake)
             D2E_loss.backward()
-            D_optimizer.step()
+            D2E_optimizer.step()
 
             GD_loss_dict = {'gD_loss': GD_loss}
             for k, v in GD_loss_dict.items():
