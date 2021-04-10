@@ -96,7 +96,7 @@ def multiScale_loss(x,x_):
 
     #l4 = loss_ce(x.long(),x_.long())
 
-    l5 = loss_lpips(x,x_)
+    l5 = loss_lpips(x,x_).mean()
 
     print('l1,l2,l3,l4,l5:')
     print(l1)
