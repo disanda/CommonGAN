@@ -12,7 +12,7 @@ import networks.D2E_FT as net
 import loss_func
 import g_penal
 from torchsummary import summary
-import functools
+import itertools
 
 # ==============================================================================
 # =                                   param                                    =
