@@ -188,7 +188,7 @@ if __name__ == '__main__':
                 l3 = loss_lpips(x_real,x_fake).mean()
                 D2E_loss=l1+l3
                 print(l1)
-                print(l2)
+                #print(l2)
                 print(l3)
                 D2E_loss.backward()
                 D2E_optimizer.step()
