@@ -86,7 +86,7 @@ def multiScale_loss(x,x_):
     l1 = mse(x,x_)
 
     logit_x, logit_x_ = torch.nn.functional.softmax(x), torch.nn.functional.softmax(logit_x_)
-    l2 = loss_kl(torch.log(x_),x)
+    l2 = loss_kl(torch.log(x_),x) # True：x, Flase: x_.
     l2 = torch.where(torch.isnan(l2),torch.full_like(l2,0),l2)
     l2 = torch.where(torch.isinf(l2),torch.full_like(l2,1),l2)
 

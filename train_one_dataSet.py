@@ -44,7 +44,7 @@ if args.experiment_name == 'none':
     if args.gradient_penalty_mode != 'none':
         args.experiment_name += '_%s_%s' % (args.gradient_penalty_mode, args.gradient_penalty_sample_mode)
 
-args.experiment_name += '_Gs%d_Ds%d_Zdim%d_imgSize%d_batch_size%d_1*1_resGD' % (args.Gscale, args.Dscale, args.z_dim, args.img_size,args.batch_size)
+args.experiment_name += '_Gs%d_Ds%d_Zdim%d_imgSize%d_batch_size%d_1*1_resGD_D2E-img' % (args.Gscale, args.Dscale, args.z_dim, args.img_size,args.batch_size)
 
 output_dir = os.path.join('output', args.experiment_name)
 
@@ -100,7 +100,7 @@ d_loss_fn, g_loss_fn = loss_func.get_adversarial_losses_fn(args.adversarial_loss
 # optimizer
 G_optimizer = torch.optim.Adam(G.parameters(), lr=args.lr, betas=(args.beta_1, 0.999))
 D_optimizer = torch.optim.Adam(D.parameters(), lr=args.lr, betas=(args.beta_1, 0.999))
-#info_optimizer = optim.Adam(itertools.chain(G.parameters(), D.parameters()),lr=0.0001,betas=(0.6, 0.95),amsgrad=True)#G,D都更新
+D2E_optimizer = optim.Adam(itertools.chain(G.parameters(), D.parameters()),lr=0.0001,betas=(0.6, 0.95),amsgrad=True)#G,D都更新
 #decayG = torch.optim.lr_scheduler.ExponentialLR(G_optimizer, gamma=1)
 #decayD = torch.optim.lr_scheduler.ExponentialLR(D_optimizer, gamma=1)
 
@@ -152,7 +152,7 @@ if __name__ == '__main__':
             #D_loss = 1/(1+0.005*ep)*D_loss # 渐进式GP!
 
             D.zero_grad()
-            D_loss.backward()
+            D_loss.backward(retain_graph=True)
             D_optimizer.step()
             #decayD.step()
 
@@ -167,7 +167,7 @@ if __name__ == '__main__':
             G_loss = g_loss_fn(x_fake_d_logit_2) #渐进式loss
             #G_loss = 1/(1+ep*0.01)*g_loss_fn(x_fake_d_logit) #渐进式loss
             G.zero_grad()
-            G_loss.backward()
+            G_loss.backward(retain_graph=True)
             G_optimizer.step()
             #decayG.step()
 
@@ -177,10 +177,13 @@ if __name__ == '__main__':
                 writer.add_scalar('G/%s' % k, v.data.cpu().numpy(), global_step=it_g)
 
 #-----------training GD----------
+            D2E_loss=loss_func.multiScale_loss(x_real,x_fake)
+            D2E_loss.backward()
+            D_optimizer.step()
 
-
-
-
+            GD_loss_dict = {'gD_loss': GD_loss}
+            for k, v in GD_loss_dict.items():
+                writer.add_scalar('GD/%s' % k, v.data.cpu().numpy(), global_step=it_g)
 
 #--------------save---------------
             if (it_g)%100==0:
