@@ -1,5 +1,5 @@
 import torch
-
+import lpips
 
 def get_gan_losses_fn():
     bce = torch.nn.BCEWithLogitsLoss()
