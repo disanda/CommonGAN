@@ -94,7 +94,7 @@ def multiScale_loss(x,x_):
     #l3 = abs(1-vector_x.dot(vector_x_)/(torch.sqrt(vector_x.dot(vector_x))*torch.sqrt(vector_x_.dot(vector_x_))))
     l3 = (1-abs(torch.cosine_similarity(x.view(x.shape[0],-1),x_.view(x.shape[0],-1)))).mean()
 
-    l4 = loss_ce(x.long(),x_.long())
+    #l4 = loss_ce(x.long(),x_.long())
 
     l5 = loss_lpips(x,x_)
 
@@ -102,9 +102,9 @@ def multiScale_loss(x,x_):
     print(l1)
     print(l2)
     print(l3)
-    print(l4)
+    #print(l4)
     print(l5)
-    l = l1+l2+l3+l4_l5
+    l = l1+l2+l3+l5
     return l
 
 #--------------后面的几个loss用于10张pose生成新的pose-------------------
