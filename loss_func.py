@@ -83,7 +83,7 @@ def multiScale_loss(x,x_):
     loss_kl = torch.nn.KLDivLoss().cuda()
     loss_ce = torch.nn.CrossEntropyLoss().cuda()
 
-    l1 = mse(x,x_)
+    l1 = loss_mse(x,x_)
 
     logit_x, logit_x_ = torch.nn.functional.softmax(x), torch.nn.functional.softmax(logit_x_)
     l2 = loss_kl(torch.log(x_),x) # True：x, Flase: x_.
@@ -96,12 +96,16 @@ def multiScale_loss(x,x_):
 
     l4 = loss_ce(x,x_)
 
-    print('l1,l2,l3,l4:')
+    l5 = loss_lpips(x,x_)
+
+    print('l1,l2,l3,l4,l5:')
     print(l1)
     print(l2)
     print(l3)
     print(l4)
-    l = l1+l2+l3+l4
+    print(l5)
+    l = l1+l2+l3+l4_l5
+    return l
 
 #--------------后面的几个loss用于10张pose生成新的pose-------------------
 def get_hinge_v2_1_losses_fn():
