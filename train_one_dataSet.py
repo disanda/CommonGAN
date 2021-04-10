@@ -45,7 +45,7 @@ if args.experiment_name == 'none':
     if args.gradient_penalty_mode != 'none':
         args.experiment_name += '_%s_%s' % (args.gradient_penalty_mode, args.gradient_penalty_sample_mode)
 
-args.experiment_name += '_Gs%d_Ds%d_Zdim%d_imgSize%d_batch_size%d_1*1_resGD_D2E-img' % (args.Gscale, args.Dscale, args.z_dim, args.img_size,args.batch_size)
+args.experiment_name += '_Gs%d_Ds%d_Zdim%d_imgSize%d_batch_size%d_1*1_resD' % (args.Gscale, args.Dscale, args.z_dim, args.img_size,args.batch_size)
 
 output_dir = os.path.join('output', args.experiment_name)
 
@@ -72,9 +72,9 @@ print('data-size:    '+str(shape))
 # ==============================================================================
 # =                                   model                                    =
 # ==============================================================================
-#G = net.Generator(input_dim=args.z_dim, output_channels = args.img_channels, image_size=args.img_size, scale=args.Gscale, another_times=another_times_).to(device)
+G = net.Generator(input_dim=args.z_dim, output_channels = args.img_channels, image_size=args.img_size, scale=args.Gscale, another_times=another_times_).to(device)
 #D = net.Discriminator_SpectrualNorm(input_dim=args.z_dim, input_channels = args.img_channels, image_size=args.img_size, Gscale=args.Gscale, Dscale=args.Dscale, another_times=another_times_).to(device)
-G = net.Generator_v2().to(device)
+#G = net.Generator_v2().to(device)
 D = net.Discriminator_SpectrualNorm_v2().to(device)
 #G.load_state_dict(torch.load('./pre-model/G_in256_G8.pth',map_location=device)) #shadow的效果要好一些 
 #D.load_state_dict(torch.load('./pre-model/D_in256_D4.pth',map_location=device))
@@ -101,7 +101,7 @@ d_loss_fn, g_loss_fn = loss_func.get_adversarial_losses_fn(args.adversarial_loss
 # optimizer
 G_optimizer = torch.optim.Adam(G.parameters(), lr=args.lr, betas=(args.beta_1, 0.999))
 D_optimizer = torch.optim.Adam(D.parameters(), lr=args.lr, betas=(args.beta_1, 0.999))
-D2E_optimizer = torch.optim.Adam(itertools.chain(G.parameters(), D.parameters()),lr=0.0001,betas=(0.6, 0.95),amsgrad=True)#G,D都更新
+#D2E_optimizer = torch.optim.Adam(itertools.chain(G.parameters(), D.parameters()),lr=0.0001,betas=(0.6, 0.95),amsgrad=True)#G,D都更新
 #decayG = torch.optim.lr_scheduler.ExponentialLR(G_optimizer, gamma=1)
 #decayD = torch.optim.lr_scheduler.ExponentialLR(D_optimizer, gamma=1)
 
@@ -178,24 +178,24 @@ if __name__ == '__main__':
                 writer.add_scalar('G/%s' % k, v.data.cpu().numpy(), global_step=it_g)
 
 #-----------training GD----------
-            with torch.autograd.set_detect_anomaly(True):
-                loss_mse = torch.nn.MSELoss()
-                loss_lpips = lpips.LPIPS(net='vgg').to('cuda')
-                #loss_kl = torch.nn.KLDivLoss()
-                loss_ce = torch.nn.CrossEntropyLoss()
-                l1 = loss_mse(x_real,x_fake)
-                #l2 = (1-abs(torch.cosine_similarity(x_real.view(x_real.shape[0],-1),x_fake.view(x_fake.shape[0],-1)))).mean()
-                l3 = loss_lpips(x_real,x_fake).mean()
-                D2E_loss=l1+l3
-                print(l1)
-                #print(l2)
-                print(l3)
-                D2E_loss.backward()
-                D2E_optimizer.step()
+            # with torch.autograd.set_detect_anomaly(True):
+            #     loss_mse = torch.nn.MSELoss()
+            #     loss_lpips = lpips.LPIPS(net='vgg').to('cuda')
+            #     #loss_kl = torch.nn.KLDivLoss()
+            #     loss_ce = torch.nn.CrossEntropyLoss()
+            #     l1 = loss_mse(x_real,x_fake)
+            #     #l2 = (1-abs(torch.cosine_similarity(x_real.view(x_real.shape[0],-1),x_fake.view(x_fake.shape[0],-1)))).mean()
+            #     l3 = loss_lpips(x_real,x_fake).mean()
+            #     D2E_loss=l1+l3
+            #     print(l1)
+            #     #print(l2)
+            #     print(l3)
+            #     D2E_loss.backward()
+            #     D2E_optimizer.step()
 
-            GD_loss_dict = {'gD_loss': GD_loss}
-            for k, v in GD_loss_dict.items():
-                writer.add_scalar('GD/%s' % k, v.data.cpu().numpy(), global_step=it_g)
+            # GD_loss_dict = {'gD_loss': GD_loss}
+            # for k, v in GD_loss_dict.items():
+            #     writer.add_scalar('GD/%s' % k, v.data.cpu().numpy(), global_step=it_g)
 
 #--------------save---------------
             if (it_g)%100==0:
