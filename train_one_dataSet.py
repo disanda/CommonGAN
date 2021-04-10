@@ -152,7 +152,7 @@ if __name__ == '__main__':
             D_loss = (x_real_d_loss + x_fake_d_loss) + gp * args.gradient_penalty_weight
             #D_loss = 1/(1+0.005*ep)*D_loss # 渐进式GP!
 
-            D.zero_grad()
+            D_optimizer.zero_grad()
             D_loss.backward(retain_graph=True)
             D_optimizer.step()
             #decayD.step()
@@ -167,7 +167,7 @@ if __name__ == '__main__':
             x_fake_d_logit_2 = D(x_fake)
             G_loss = g_loss_fn(x_fake_d_logit_2) #渐进式loss
             #G_loss = 1/(1+ep*0.01)*g_loss_fn(x_fake_d_logit) #渐进式loss
-            G.zero_grad()
+            G_optimizer.zero_grad()
             G_loss.backward(retain_graph=True)
             G_optimizer.step()
             #decayG.step()
