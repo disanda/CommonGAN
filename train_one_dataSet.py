@@ -147,8 +147,8 @@ if __name__ == '__main__':
 
             x_real_d_loss, x_fake_d_loss = d_loss_fn(x_real_d_logit, x_fake_d_logit)
 
-            print(x_real_d_loss)
-            print(x_fake_d_loss)
+            print(x_real_d_logit)
+            print(x_fake_d_logit)
 
             #gp = g_penal.gradient_penalty(functools.partial(D), x_real, x_fake.detach(), gp_mode=args.gradient_penalty_mode, sample_mode=args.gradient_penalty_sample_mode)
             gp = torch.tensor(0.0)
