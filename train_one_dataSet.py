@@ -186,11 +186,10 @@ if __name__ == '__main__':
                 loss_lpips = lpips.LPIPS(net='vgg').to('cuda')
                 #loss_kl = torch.nn.KLDivLoss()
                 loss_ce = torch.nn.CrossEntropyLoss()
-                l1 = loss_mse(x_real,x_fake)
+                D2E_loss = loss_mse(x_real,x_fake)
                 #l2 = (1-abs(torch.cosine_similarity(x_real.view(x_real.shape[0],-1),x_fake.view(x_fake.shape[0],-1)))).mean()
                 #l3 = loss_lpips(x_real,x_fake).mean()
-                D2E_loss=l1
-                print(l1)
+                print(D2E_loss)
                 #print(l2)
                 #print(l3)
                 D2E_loss.backward()
