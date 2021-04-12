@@ -74,8 +74,8 @@ print('data-size:    '+str(shape))
 # ==============================================================================
 #G = net.Generator(input_dim=args.z_dim, output_channels = args.img_channels, image_size=args.img_size, scale=args.Gscale, another_times=another_times_).to(device)
 #D = net.Discriminator_SpectrualNorm(input_dim=args.z_dim, input_channels = args.img_channels, image_size=args.img_size, Gscale=args.Gscale, Dscale=args.Dscale, another_times=another_times_).to(device)
-G = net.Generator().to(device)
-D = net.Discriminator_SpectrualNorm_v2().to(device)
+G = net.Generator_v3().to(device)
+D = net.Discriminator_SpectrualNorm_v3().to(device)
 #G.load_state_dict(torch.load('./pre-model/G_in256_G8.pth',map_location=device)) #shadow的效果要好一些 
 #D.load_state_dict(torch.load('./pre-model/D_in256_D4.pth',map_location=device))
 summary(G,(512,1,1))
@@ -140,10 +140,10 @@ if __name__ == '__main__':
             z = torch.randn(args.batch_size, args.z_dim, 1, 1).to(device)
             #z = torch.randn(args.batch_size, args.z_dim, 4, 4).to(device) #PGGAN-StyleGAN的输入
 #--------training D-----------
-            x_fake = G(z)
+            x_fake = G(z)[8]
             #print(x_real.shape)
-            x_real_d_logit = D(x_real)
-            x_fake_d_logit = D(x_fake.detach())
+            x_real_d_logit = D(x_real)[0]
+            x_fake_d_logit = D(x_fake.detach())[0]
 
             x_real_d_loss, x_fake_d_loss = d_loss_fn(x_real_d_logit, x_fake_d_logit)
 
@@ -164,7 +164,7 @@ if __name__ == '__main__':
                 writer.add_scalar('D/%s' % k, v.data.cpu().numpy(), global_step=it_d)
 
 #-----------training G-----------
-            x_fake_d_logit_2 = D(x_fake)
+            x_fake_d_logit_2 = D(x_fake)[0]
             G_loss = g_loss_fn(x_fake_d_logit_2) #渐进式loss
             #G_loss = 1/(1+ep*0.01)*g_loss_fn(x_fake_d_logit) #渐进式loss
             G_optimizer.zero_grad()
@@ -178,24 +178,24 @@ if __name__ == '__main__':
                 writer.add_scalar('G/%s' % k, v.data.cpu().numpy(), global_step=it_g)
 
 #-----------training GD----------
-            # with torch.autograd.set_detect_anomaly(True):
-            #     loss_mse = torch.nn.MSELoss()
-            #     loss_lpips = lpips.LPIPS(net='vgg').to('cuda')
-            #     #loss_kl = torch.nn.KLDivLoss()
-            #     loss_ce = torch.nn.CrossEntropyLoss()
-            #     l1 = loss_mse(x_real,x_fake)
-            #     #l2 = (1-abs(torch.cosine_similarity(x_real.view(x_real.shape[0],-1),x_fake.view(x_fake.shape[0],-1)))).mean()
-            #     l3 = loss_lpips(x_real,x_fake).mean()
-            #     D2E_loss=l1+l3
-            #     print(l1)
-            #     #print(l2)
-            #     print(l3)
-            #     D2E_loss.backward()
-            #     D2E_optimizer.step()
+            with torch.autograd.set_detect_anomaly(True):
+                loss_mse = torch.nn.MSELoss()
+                loss_lpips = lpips.LPIPS(net='vgg').to('cuda')
+                #loss_kl = torch.nn.KLDivLoss()
+                loss_ce = torch.nn.CrossEntropyLoss()
+                l1 = loss_mse(x_real,x_fake)
+                #l2 = (1-abs(torch.cosine_similarity(x_real.view(x_real.shape[0],-1),x_fake.view(x_fake.shape[0],-1)))).mean()
+                l3 = loss_lpips(x_real,x_fake).mean()
+                D2E_loss=l1+l3
+                print(l1)
+                #print(l2)
+                print(l3)
+                D2E_loss.backward()
+                D2E_optimizer.step()
 
-            # GD_loss_dict = {'gD_loss': GD_loss}
-            # for k, v in GD_loss_dict.items():
-            #     writer.add_scalar('GD/%s' % k, v.data.cpu().numpy(), global_step=it_g)
+            GD_loss_dict = {'gD_loss': GD_loss}
+            for k, v in GD_loss_dict.items():
+                writer.add_scalar('GD/%s' % k, v.data.cpu().numpy(), global_step=it_g)
 
 #--------------save---------------
             if (it_g)%100==0:
