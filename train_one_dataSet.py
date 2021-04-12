@@ -186,15 +186,15 @@ if __name__ == '__main__':
                 x_g = G(z)
                 x_d = D(x_real)
                 DE_loss = 0
-                for i in len(x_g):
-                    DE_loss = loss_mse(x_d[i],x_g[i])+DE_loss
-                #l2 = (1-abs(torch.cosine_similarity(x_real.view(x_real.shape[0],-1),x_fake.view(x_fake.shape[0],-1)))).mean()
-                #l3 = loss_lpips(x_real,x_fake).mean()
-                print(DE_loss)
-                #print(l2)
-                #print(l3)
+                for i,j in zip(x_g,x_d) :
+                    DE_loss = loss_mse(i,j)+DE_loss
                 DE_loss.backward()
                 D_optimizer.step()
+                #l2 = (1-abs(torch.cosine_similarity(x_real.view(x_real.shape[0],-1),x_fake.view(x_fake.shape[0],-1)))).mean()
+                #l3 = loss_lpips(x_real,x_fake).mean()
+                #print(l2)
+                #print(l3)
+
 
             GE_loss_dict = {'gD_loss': GE_loss}
             for k, v in GE_loss_dict.items():
