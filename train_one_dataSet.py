@@ -101,7 +101,7 @@ d_loss_fn, g_loss_fn = loss_func.get_adversarial_losses_fn(args.adversarial_loss
 # optimizer
 G_optimizer = torch.optim.Adam(G.parameters(), lr=args.lr, betas=(args.beta_1, 0.999))
 D_optimizer = torch.optim.Adam(D.parameters(), lr=args.lr, betas=(args.beta_1, 0.999))
-#D2E_optimizer = torch.optim.Adam(itertools.chain(G.parameters(), D.parameters()),lr=0.0001,betas=(0.6, 0.95),amsgrad=True)#G,D都更新
+D2E_optimizer = torch.optim.Adam(itertools.chain(G.parameters(), D.parameters()),lr=0.0001,betas=(0.6, 0.95),amsgrad=True)#G,D都更新
 #decayG = torch.optim.lr_scheduler.ExponentialLR(G_optimizer, gamma=1)
 #decayD = torch.optim.lr_scheduler.ExponentialLR(D_optimizer, gamma=1)
 
