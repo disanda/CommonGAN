@@ -140,7 +140,7 @@ if __name__ == '__main__':
             z = torch.randn(args.batch_size, args.z_dim, 1, 1).to(device)
             #z = torch.randn(args.batch_size, args.z_dim, 4, 4).to(device) #PGGAN-StyleGAN的输入
 #--------training D-----------
-            x_fake = G(z)[8] #G(z)[8]
+            x_fake = G(z) #G(z)[8]
             #print(x_real.shape)
             x_real_d_logit = D(x_real) # D(x_real)[0]
             x_fake_d_logit = D(x_fake.detach())
