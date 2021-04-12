@@ -140,10 +140,10 @@ if __name__ == '__main__':
             z = torch.randn(args.batch_size, args.z_dim, 1, 1).to(device)
             #z = torch.randn(args.batch_size, args.z_dim, 4, 4).to(device) #PGGAN-StyleGAN的输入
 #--------training D-----------
-            x_fake = G(z)[8]
+            x_fake = G(z)[8] #G(z)[8]
             #print(x_real.shape)
-            x_real_d_logit = D(x_real)[0]
-            x_fake_d_logit = D(x_fake.detach())[0]
+            x_real_d_logit = D(x_real) # D(x_real)[0]
+            x_fake_d_logit = D(x_fake.detach())
 
             x_real_d_loss, x_fake_d_loss = d_loss_fn(x_real_d_logit, x_fake_d_logit)
 
@@ -164,7 +164,7 @@ if __name__ == '__main__':
                 writer.add_scalar('D/%s' % k, v.data.cpu().numpy(), global_step=it_d)
 
 #-----------training G-----------
-            x_fake_d_logit_2 = D(x_fake)[0]
+            x_fake_d_logit_2 = D(x_fake)
             G_loss = g_loss_fn(x_fake_d_logit_2) #渐进式loss
             #G_loss = 1/(1+ep*0.01)*g_loss_fn(x_fake_d_logit) #渐进式loss
             G_optimizer.zero_grad()
@@ -203,7 +203,7 @@ if __name__ == '__main__':
 #--------------save---------------
             if (it_g)%100==0:
                 with torch.no_grad():
-                    torchvision.utils.save_image(x_fake,sample_dir+'/ep%d_it%d.jpg'%(ep,it_g), nrow=5)
+                    torchvision.utils.save_image(x_fake,sample_dir+'/ep%d_it%d.jpg'%(ep,it_g), nrow=6)
                     with open(output_dir+'/loss.txt','a+') as f:
                         print('G_loss:'+str(G_loss)+'------'+'D_loss'+str(D_loss),file=f)
                         print('------------------------')
