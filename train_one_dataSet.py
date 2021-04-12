@@ -196,7 +196,7 @@ if __name__ == '__main__':
                 #print(l3)
 
 
-            GE_loss_dict = {'gD_loss': GE_loss}
+            GE_loss_dict = {'gD_loss': DE_loss}
             for k, v in GE_loss_dict.items():
                 writer.add_scalar('GD/%s' % k, v.data.cpu().numpy(), global_step=it_g)
 
