@@ -288,7 +288,6 @@ class Generator_v3(nn.Module):
         for i in range(int(math.log(512,2))-1):
             z = getattr(self, "layer%d" % (i+1))(z)
             output.append(z)
-        outout = output[::-1]
         return output
 
 class Discriminator_SpectrualNorm_v3(nn.Module):
@@ -334,5 +333,6 @@ class Discriminator_SpectrualNorm_v3(nn.Module):
         for i in range(int(math.log(512,2))-1):
             x = getattr(self, "layer%d" % (i+1))(x)
             output.append(x)
+        output = output[::-1]
         return output
 
