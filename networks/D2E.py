@@ -40,14 +40,16 @@ class Generator(nn.Module):
         # 1: 1x1 -> 4x4
         #layers.append(nn.ConvTranspose2d(input_dim, first_hidden_dim, kernel_size=4,stride=1,padding=0,bias=bias_flag)) # 1*1 input -> 4*4
         layers.append(nn.ConvTranspose2d(input_dim, first_hidden_dim, kernel_size=4,stride=2,padding=1,bias=bias_flag)) # 4*4 input -> 8*8
-        layers.append(nn.BatchNorm2d(first_hidden_dim))
+        #layers.append(nn.BatchNorm2d(first_hidden_dim))
+        layers.append(nn.InstanceNorm2d(first_hidden_dim, affine=False, eps=1e-8))
         layers.append(nn.ReLU())
 
         # 2: upsamplings, 4x4 -> 8x8 -> 16x16 -> 32*32
         hidden_dim = first_hidden_dim
         while up_times>0:
             layers.append(nn.ConvTranspose2d(hidden_dim, hidden_dim//2, kernel_size=4, stride=2, padding=1 ,bias=bias_flag))
-            layers.append(nn.BatchNorm2d(hidden_dim//2))
+            #layers.append(nn.BatchNorm2d(hidden_dim//2))
+            layers.append(nn.InstanceNorm2d(hidden_dim//2, affine=False, eps=1e-8))
             layers.append(nn.ReLU())
             up_times = up_times - 1
             hidden_dim = hidden_dim // 2

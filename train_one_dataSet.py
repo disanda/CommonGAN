@@ -8,7 +8,7 @@ import os
 import yaml
 import torchvision
 import data
-import networks.D2E_FT as net
+import networks.D2E as net
 import loss_func
 import g_penal
 from torchsummary import summary
@@ -24,17 +24,17 @@ parser = argparse.ArgumentParser(description='the training args')
 parser.add_argument('--epochs', type=int, default=100)
 parser.add_argument('--lr', type=float, default=0.0002)
 parser.add_argument('--beta_1', type=float, default=0.5)
-parser.add_argument('--batch_size', type=int, default=20)
+parser.add_argument('--batch_size', type=int, default=60)
 parser.add_argument('--adversarial_loss_mode', default='gan', choices=['gan', 'hinge_v1', 'hinge_v2', 'lsgan', 'wgan'])
 parser.add_argument('--gradient_penalty_mode', default='none', choices=['none', '1-gp', '0-gp', 'lp'])
 parser.add_argument('--gradient_penalty_sample_mode', default='line', choices=['line', 'real', 'fake', 'dragan'])
 parser.add_argument('--gradient_penalty_weight', type=float, default=10.0)
 parser.add_argument('--experiment_name', default='none')
-parser.add_argument('--img_size',type=int, default=512)
+parser.add_argument('--img_size',type=int, default=256)
 parser.add_argument('--img_channels', type=int, default=3)# RGB:3 ,L:1
 parser.add_argument('--dataset', default='Celeba_HQ')#choices=['cifar10', 'fashion_mnist', 'mnist', 'celeba', 'anime', 'custom','Celeba_HQ'])
-parser.add_argument('--z_dim', type=int, default=512)
-parser.add_argument('--Gscale', type=int, default=2) # scale：网络隐藏层维度数,默认为 image_size//8 * image_size 
+parser.add_argument('--z_dim', type=int, default=256)
+parser.add_argument('--Gscale', type=int, default=8) # scale：网络隐藏层维度数,默认为 image_size//8 * image_size 
 parser.add_argument('--Dscale', type=int, default=1) 
 args = parser.parse_args()
 another_times_=1 #减少的卷积层数，用于输入为4*4
@@ -45,7 +45,7 @@ if args.experiment_name == 'none':
     if args.gradient_penalty_mode != 'none':
         args.experiment_name += '_%s_%s' % (args.gradient_penalty_mode, args.gradient_penalty_sample_mode)
 
-args.experiment_name += '_Gs%d_Ds%d_Zdim%d_imgSize%d_batch_size%d_D2E_upD' % (args.Gscale, args.Dscale, args.z_dim, args.img_size,args.batch_size)
+args.experiment_name += '_Gs%d_Ds%d_Zdim%d_imgSize%d_batch_size%d_256pixel_reBest_G(IN)' % (args.Gscale, args.Dscale, args.z_dim, args.img_size,args.batch_size)
 
 output_dir = os.path.join('output', args.experiment_name)
 
@@ -72,10 +72,10 @@ print('data-size:    '+str(shape))
 # ==============================================================================
 # =                                   model                                    =
 # ==============================================================================
-#G = net.Generator(input_dim=args.z_dim, output_channels = args.img_channels, image_size=args.img_size, scale=args.Gscale, another_times=another_times_).to(device)
-#D = net.Discriminator_SpectrualNorm(input_dim=args.z_dim, input_channels = args.img_channels, image_size=args.img_size, Gscale=args.Gscale, Dscale=args.Dscale, another_times=another_times_).to(device)
-G = net.Generator_v3().to(device)
-D = net.Discriminator_SpectrualNorm_v3().to(device)
+G = net.Generator(input_dim=args.z_dim, output_channels = args.img_channels, image_size=args.img_size, scale=args.Gscale, another_times=another_times_).to(device)
+D = net.Discriminator_SpectrualNorm(input_dim=args.z_dim, input_channels = args.img_channels, image_size=args.img_size, Gscale=args.Gscale, Dscale=args.Dscale, another_times=another_times_).to(device)
+#G = net.Generator_v3().to(device)
+#D = net.Discriminator_SpectrualNorm_v3().to(device)
 #G.load_state_dict(torch.load('./pre-model/G_in256_G8.pth',map_location=device)) #shadow的效果要好一些 
 #D.load_state_dict(torch.load('./pre-model/D_in256_D4.pth',map_location=device))
 summary(G,(512,1,1))
@@ -178,27 +178,27 @@ if __name__ == '__main__':
                 writer.add_scalar('G/%s' % k, v.data.cpu().numpy(), global_step=it_g)
 
 #-----------training GD----------
-            with torch.autograd.set_detect_anomaly(True):
-                loss_mse = torch.nn.MSELoss()
-                #loss_lpips = lpips.LPIPS(net='vgg').to('cuda')
-                #loss_kl = torch.nn.KLDivLoss()
-                #loss_ce = torch.nn.CrossEntropyLoss()
-                x_g = G(z)
-                x_d = D(x_real)
-                DE_loss = 0
-                for i,j in zip(x_g,x_d) :
-                    DE_loss = loss_mse(i,j)+DE_loss
-                DE_loss.backward()
-                D_optimizer.step()
-                #l2 = (1-abs(torch.cosine_similarity(x_real.view(x_real.shape[0],-1),x_fake.view(x_fake.shape[0],-1)))).mean()
-                #l3 = loss_lpips(x_real,x_fake).mean()
-                #print(l2)
-                #print(l3)
+            # with torch.autograd.set_detect_anomaly(True):
+            #     loss_mse = torch.nn.MSELoss()
+            #     #loss_lpips = lpips.LPIPS(net='vgg').to('cuda')
+            #     #loss_kl = torch.nn.KLDivLoss()
+            #     #loss_ce = torch.nn.CrossEntropyLoss()
+            #     x_g = G(z)
+            #     x_d = D(x_real)
+            #     DE_loss = 0
+            #     for i,j in zip(x_g,x_d) :
+            #         DE_loss = loss_mse(i,j)+DE_loss
+            #     DE_loss.backward()
+            #     D_optimizer.step()
+            #     #l2 = (1-abs(torch.cosine_similarity(x_real.view(x_real.shape[0],-1),x_fake.view(x_fake.shape[0],-1)))).mean()
+            #     #l3 = loss_lpips(x_real,x_fake).mean()
+            #     #print(l2)
+            #     #print(l3)
 
 
-            GE_loss_dict = {'gD_loss': DE_loss}
-            for k, v in GE_loss_dict.items():
-                writer.add_scalar('GD/%s' % k, v.data.cpu().numpy(), global_step=it_g)
+            # GE_loss_dict = {'gD_loss': DE_loss}
+            # for k, v in GE_loss_dict.items():
+            #     writer.add_scalar('GD/%s' % k, v.data.cpu().numpy(), global_step=it_g)
 
 #--------------save---------------
             if (it_g)%100==0:

@@ -25,7 +25,7 @@ def pixel_norm(x, epsilon=1e-8):
     return x * torch.rsqrt(torch.mean(x.pow(2.0), dim=1, keepdim=True) + epsilon)
 
 class Generator(nn.Module):
-    def __init__(self, input_dim=512, output_channels=3, image_size=512, first_hidden_dim_ = 512, last_hidden_dim_ =64, another_times=0):
+    def __init__(self, input_dim=512, output_channels=3, image_size=512, first_hidden_dim_ = 512, last_hidden_dim_=64, another_times=0):
         super().__init__()
         layers = []
         up_times = math.log(image_size,2)- 3 - another_times # 减去前两次 1->2->4， 及最后一次， 方便中间写循环
