@@ -187,13 +187,13 @@ if __name__ == '__main__':
                 #loss_kl = torch.nn.KLDivLoss()
                 #loss_ce = torch.nn.CrossEntropyLoss()
                 x_fake_2 = G(z)[8]
-                D2E_loss = loss_mse(x_real,x_fake_2)
+                GD_loss = loss_mse(x_real,x_fake_2)
                 #l2 = (1-abs(torch.cosine_similarity(x_real.view(x_real.shape[0],-1),x_fake.view(x_fake.shape[0],-1)))).mean()
                 #l3 = loss_lpips(x_real,x_fake).mean()
-                print(D2E_loss)
+                print(GD_loss)
                 #print(l2)
                 #print(l3)
-                D2E_loss.backward()
+                GD_loss.backward()
                 D2E_optimizer.step()
 
             GD_loss_dict = {'gD_loss': GD_loss}
