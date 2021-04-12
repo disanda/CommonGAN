@@ -300,7 +300,7 @@ class Discriminator_SpectrualNorm_v3(nn.Module):
         # 1:
         layers = []
         layers.append(spectral_norm(nn.Conv2d(input_channels, first_hidden_dim_, kernel_size=4, stride=2, padding=1, bias=bias_flag)))
-        layers.append(nn.LeakyReLU(0.2, inplace=True))
+        layers.append(nn.LeakyReLU(0.2, inplace=False))
         setattr(self, "layer%d" % (1), nn.Sequential(*layers))
 
         # 2: 64*64 > 4*4
@@ -310,13 +310,13 @@ class Discriminator_SpectrualNorm_v3(nn.Module):
             if hidden_dim<last_hidden_dim_: 
                 layers = [] 
                 layers.append(spectral_norm(nn.Conv2d(hidden_dim, hidden_dim*2, kernel_size=4, stride=2, padding=1, bias=bias_flag)))
-                layers.append(nn.LeakyReLU(0.2, inplace=True))
+                layers.append(nn.LeakyReLU(0.2, inplace = False))
                 setattr(self, "layer%d" % (i), nn.Sequential(*layers))
                 hidden_dim = hidden_dim*2
             else:
                 layers = [] 
                 layers.append(spectral_norm(nn.Conv2d(hidden_dim, hidden_dim, kernel_size=4, stride=2, padding=1, bias=bias_flag)))
-                layers.append(nn.LeakyReLU(0.2, inplace=True))
+                layers.append(nn.LeakyReLU(0.2, inplace=False))
                 setattr(self, "layer%d" % (i), nn.Sequential(*layers))
             up_times = up_times - 1
             i = i + 1
