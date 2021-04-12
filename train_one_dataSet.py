@@ -183,10 +183,11 @@ if __name__ == '__main__':
 #-----------training GD----------
             with torch.autograd.set_detect_anomaly(True):
                 loss_mse = torch.nn.MSELoss()
-                loss_lpips = lpips.LPIPS(net='vgg').to('cuda')
+                #loss_lpips = lpips.LPIPS(net='vgg').to('cuda')
                 #loss_kl = torch.nn.KLDivLoss()
-                loss_ce = torch.nn.CrossEntropyLoss()
-                D2E_loss = loss_mse(x_real,x_fake)
+                #loss_ce = torch.nn.CrossEntropyLoss()
+                x_fake_2 = G(z)[8]
+                D2E_loss = loss_mse(x_real,x_fake_2)
                 #l2 = (1-abs(torch.cosine_similarity(x_real.view(x_real.shape[0],-1),x_fake.view(x_fake.shape[0],-1)))).mean()
                 #l3 = loss_lpips(x_real,x_fake).mean()
                 print(D2E_loss)
