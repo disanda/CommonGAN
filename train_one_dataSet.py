@@ -188,7 +188,9 @@ if __name__ == '__main__':
                 #DE_loss = 0
                 #for i,j in zip(x_g,x_d) :
                     #DE_loss = loss_mse(i,j)+DE_loss
-                DE_loss = loss_mse(x_g,x_d)
+                DE_loss_1 = loss_mse(x_g,x_real)
+                DE_loss_2 = loss_mse(x_d,z)
+                DE_loss = DE_loss_1+DE_loss_2
                 DE_loss.backward()
                 D_optimizer.step()
                 #l2 = (1-abs(torch.cosine_similarity(x_real.view(x_real.shape[0],-1),x_fake.view(x_fake.shape[0],-1)))).mean()
