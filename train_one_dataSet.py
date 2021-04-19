@@ -209,7 +209,7 @@ if __name__ == '__main__':
                         print('------------------------')
 
                 #G
-                z = torch.randn(1,512,1,1)
+                z = torch.randn(1,512,1,1).cuda()
                 for name, layer in G.net._modules.items():
                     z = layer(z)
                     if isinstance(layer, torch.nn.ConvTranspose2d):
