@@ -219,7 +219,7 @@ if __name__ == '__main__':
                 for name, layer in G.net._modules.items():
                     z = layer(z)
                     if isinstance(layer, torch.nn.ConvTranspose2d):
-                        print(z.shape)
+                        #print(z.shape)
                         x1 = z.transpose(0, 1)  # C，B, H, W  ---> B，C, H, W
                         img_grid = torchvision.utils.make_grid(x1, normalize=True, scale_each=True, nrow=30)  # B，C, H, W
                         writer.add_image('feature_maps_G_%d_%d_%s'%(ep,it_g,name), img_grid)
