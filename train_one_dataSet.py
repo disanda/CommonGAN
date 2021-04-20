@@ -204,7 +204,7 @@ if __name__ == '__main__':
             #     writer.add_scalar('GD/%s' % k, v.data.cpu().numpy(), global_step=it_g)
 
 #--------------save---------------
-            if (it_g)%200==0:
+            if (it_g)%300==0:
                 with torch.no_grad():
                     torchvision.utils.save_image(x_fake,sample_dir+'/ep%d_it%d.jpg'%(ep,it_g), nrow=10)
                     with open(output_dir+'/loss.txt','a+') as f:
@@ -212,7 +212,7 @@ if __name__ == '__main__':
                         print('------------------------')
 
                 img_grid = torchvision.utils.make_grid(x_real, normalize=True, scale_each=True)  # B，C, H, W
-                writer.add_image('real_img_%d_%s'%(ep,name), img_grid)
+                writer.add_image('real_img_%d_%d'%(ep,it_g), img_grid)
 
                 #G
                 z = torch.randn(1,512,1,1).cuda()
