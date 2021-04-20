@@ -8,7 +8,7 @@ import os
 import yaml
 import torchvision
 import data
-import networks.D2E_4k as net
+import networks.D2E_512 as net
 import loss_func
 import g_penal
 from torchsummary import summary
@@ -46,7 +46,7 @@ if args.experiment_name == 'none':
         args.experiment_name += '_%s_%s' % (args.gradient_penalty_mode, args.gradient_penalty_sample_mode)
 
 #args.experiment_name += '_Gs%d_Ds%d_Zdim%d_imgSize%d_batch_size%d_256-stride4' % (args.Gscale, args.Dscale, args.z_dim, args.img_size,args.batch_size)
-args.experiment_name += '256_kenerl4_stride4'
+args.experiment_name += '512channel_512pixel_noAE'
 output_dir = os.path.join('output', args.experiment_name)
 
 if not os.path.exists('output'):
