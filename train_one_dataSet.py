@@ -45,7 +45,7 @@ if args.experiment_name == 'none':
     if args.gradient_penalty_mode != 'none':
         args.experiment_name += '_%s_%s' % (args.gradient_penalty_mode, args.gradient_penalty_sample_mode)
 
-args.experiment_name += '_Gs%d_Ds%d_Zdim%d_imgSize%d_batch_size%d_512pixel_512dim_D2E' % (args.Gscale, args.Dscale, args.z_dim, args.img_size,args.batch_size)
+args.experiment_name += '_Gs%d_Ds%d_Zdim%d_imgSize%d_batch_size%d_512pixel_512dim' % (args.Gscale, args.Dscale, args.z_dim, args.img_size,args.batch_size)
 
 output_dir = os.path.join('output', args.experiment_name)
 
@@ -101,7 +101,7 @@ d_loss_fn, g_loss_fn = loss_func.get_adversarial_losses_fn(args.adversarial_loss
 # optimizer
 G_optimizer = torch.optim.Adam(G.parameters(), lr=args.lr, betas=(args.beta_1, 0.999))
 D_optimizer = torch.optim.Adam(D.parameters(), lr=args.lr, betas=(args.beta_1, 0.999))
-D2E_optimizer = torch.optim.Adam(itertools.chain(G.parameters(), D.parameters()),lr=0.0001,betas=(0.6, 0.95),amsgrad=True)#G,D都更新
+#D2E_optimizer = torch.optim.Adam(itertools.chain(G.parameters(), D.parameters()),lr=0.0001,betas=(0.6, 0.95),amsgrad=True)#G,D都更新
 #decayG = torch.optim.lr_scheduler.ExponentialLR(G_optimizer, gamma=1)
 #decayD = torch.optim.lr_scheduler.ExponentialLR(D_optimizer, gamma=1)
 
@@ -178,38 +178,41 @@ if __name__ == '__main__':
                 writer.add_scalar('G/%s' % k, v.data.cpu().numpy(), global_step=it_g)
 
 #-----------training GD----------
-            with torch.autograd.set_detect_anomaly(True):
-                loss_mse = torch.nn.MSELoss()
-                #loss_lpips = lpips.LPIPS(net='vgg').to('cuda')
-                #loss_kl = torch.nn.KLDivLoss()
-                #loss_ce = torch.nn.CrossEntropyLoss()
-                x_g = G(z)
-                x_d = D(x_real)
-                #DE_loss = 0
-                #for i,j in zip(x_g,x_d) :
-                    #DE_loss = loss_mse(i,j)+DE_loss
-                DE_loss_1 = loss_mse(x_g,x_real)
-                DE_loss_2 = loss_mse(x_d,z)
-                DE_loss = DE_loss_1+DE_loss_2
-                DE_loss.backward()
-                D_optimizer.step()
-                #l2 = (1-abs(torch.cosine_similarity(x_real.view(x_real.shape[0],-1),x_fake.view(x_fake.shape[0],-1)))).mean()
-                #l3 = loss_lpips(x_real,x_fake).mean()
-                #print(l2)
-                #print(l3)
+            # with torch.autograd.set_detect_anomaly(True):
+            #     loss_mse = torch.nn.MSELoss()
+            #     #loss_lpips = lpips.LPIPS(net='vgg').to('cuda')
+            #     #loss_kl = torch.nn.KLDivLoss()
+            #     #loss_ce = torch.nn.CrossEntropyLoss()
+            #     x_g = G(z)
+            #     x_d = D(x_real)
+            #     #DE_loss = 0
+            #     #for i,j in zip(x_g,x_d) :
+            #         #DE_loss = loss_mse(i,j)+DE_loss
+            #     DE_loss_1 = loss_mse(x_g,x_real)
+            #     DE_loss_2 = loss_mse(x_d,z)
+            #     DE_loss = DE_loss_1+DE_loss_2
+            #     DE_loss.backward()
+            #     D_optimizer.step()
+            #     #l2 = (1-abs(torch.cosine_similarity(x_real.view(x_real.shape[0],-1),x_fake.view(x_fake.shape[0],-1)))).mean()
+            #     #l3 = loss_lpips(x_real,x_fake).mean()
+            #     #print(l2)
+            #     #print(l3)
 
 
-            GE_loss_dict = {'gD_loss': DE_loss}
-            for k, v in GE_loss_dict.items():
-                writer.add_scalar('GD/%s' % k, v.data.cpu().numpy(), global_step=it_g)
+            # GE_loss_dict = {'gD_loss': DE_loss}
+            # for k, v in GE_loss_dict.items():
+            #     writer.add_scalar('GD/%s' % k, v.data.cpu().numpy(), global_step=it_g)
 
 #--------------save---------------
-            if (it_g)%100==0:
+            if (it_g)%200==0:
                 with torch.no_grad():
                     torchvision.utils.save_image(x_fake,sample_dir+'/ep%d_it%d.jpg'%(ep,it_g), nrow=10)
                     with open(output_dir+'/loss.txt','a+') as f:
                         print('G_loss:'+str(G_loss)+'------'+'D_loss'+str(D_loss),file=f)
                         print('------------------------')
+
+                img_grid = torchvision.utils.make_grid(x_real, normalize=True, scale_each=True)  # B，C, H, W
+                writer.add_image('real_img_%d_%s'%(ep,name), img_grid)
 
                 #G
                 z = torch.randn(1,512,1,1).cuda()
@@ -219,7 +222,7 @@ if __name__ == '__main__':
                         print(z.shape)
                         x1 = z.transpose(0, 1)  # C，B, H, W  ---> B，C, H, W
                         img_grid = torchvision.utils.make_grid(x1, normalize=True, scale_each=True, nrow=30)  # B，C, H, W
-                        writer.add_image('feature_maps_G', img_grid)
+                        writer.add_image('feature_maps_G_%d_%s'%(ep,name), img_grid)
                         #torchvision.utils.save_image(x1,'feature_maps%s.png'%name, nrow=100)
 
                 #D
@@ -229,7 +232,7 @@ if __name__ == '__main__':
                    if isinstance(layer, torch.nn.Conv2d):
                        x1 = x.transpose(0, 1)  # C，B, H, W  ---> B，C, H, W
                        img_grid = torchvision.utils.make_grid(x1, normalize=True, scale_each=True, nrow=30)  # B，C, H, W
-                       writer.add_image('feature_maps_D', img_grid)
+                       writer.add_image('feature_maps_D_%d_%s'%(ep,name), img_grid)
                        #torchvision.utils.save_image(x1,'./D_feature_maps%s.png'%name, nrow=20)
 
         # save checkpoint
