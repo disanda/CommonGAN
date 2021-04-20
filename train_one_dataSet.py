@@ -222,7 +222,7 @@ if __name__ == '__main__':
                         print(z.shape)
                         x1 = z.transpose(0, 1)  # C，B, H, W  ---> B，C, H, W
                         img_grid = torchvision.utils.make_grid(x1, normalize=True, scale_each=True, nrow=30)  # B，C, H, W
-                        writer.add_image('feature_maps_G_%d_%s'%(ep,name), img_grid)
+                        writer.add_image('feature_maps_G_%d_%d_%s'%(ep,it_g,name), img_grid)
                         #torchvision.utils.save_image(x1,'feature_maps%s.png'%name, nrow=100)
 
                 #D
@@ -232,7 +232,7 @@ if __name__ == '__main__':
                    if isinstance(layer, torch.nn.Conv2d):
                        x1 = x.transpose(0, 1)  # C，B, H, W  ---> B，C, H, W
                        img_grid = torchvision.utils.make_grid(x1, normalize=True, scale_each=True, nrow=30)  # B，C, H, W
-                       writer.add_image('feature_maps_D_%d_%s'%(ep,name), img_grid)
+                       writer.add_image('feature_maps_D_%d_%d_%s'%(ep,it_g,name), img_grid)
                        #torchvision.utils.save_image(x1,'./D_feature_maps%s.png'%name, nrow=20)
 
         # save checkpoint
