@@ -8,7 +8,7 @@ import os
 import yaml
 import torchvision
 import data
-import networks.D2E_512 as net
+import networks.D2E_4k as net
 import loss_func
 import g_penal
 from torchsummary import summary
@@ -24,16 +24,16 @@ parser = argparse.ArgumentParser(description='the training args')
 parser.add_argument('--epochs', type=int, default=100)
 parser.add_argument('--lr', type=float, default=0.0002)
 parser.add_argument('--beta_1', type=float, default=0.5)
-parser.add_argument('--batch_size', type=int, default=5)
+parser.add_argument('--batch_size', type=int, default=60)
 parser.add_argument('--adversarial_loss_mode', default='gan', choices=['gan', 'hinge_v1', 'hinge_v2', 'lsgan', 'wgan'])
 parser.add_argument('--gradient_penalty_mode', default='none', choices=['none', '1-gp', '0-gp', 'lp'])
 parser.add_argument('--gradient_penalty_sample_mode', default='line', choices=['line', 'real', 'fake', 'dragan'])
 parser.add_argument('--gradient_penalty_weight', type=float, default=10.0)
 parser.add_argument('--experiment_name', default='none')
-parser.add_argument('--img_size',type=int, default=512)
+parser.add_argument('--img_size',type=int, default=256)
 parser.add_argument('--img_channels', type=int, default=3)# RGB:3 ,L:1
 parser.add_argument('--dataset', default='Celeba_HQ')#choices=['cifar10', 'fashion_mnist', 'mnist', 'celeba', 'anime', 'custom','Celeba_HQ'])
-parser.add_argument('--z_dim', type=int, default=512)
+parser.add_argument('--z_dim', type=int, default=256)
 parser.add_argument('--Gscale', type=int, default=8) # scale：网络隐藏层维度数,默认为 image_size//8 * image_size 
 parser.add_argument('--Dscale', type=int, default=1) 
 args = parser.parse_args()
@@ -45,8 +45,8 @@ if args.experiment_name == 'none':
     if args.gradient_penalty_mode != 'none':
         args.experiment_name += '_%s_%s' % (args.gradient_penalty_mode, args.gradient_penalty_sample_mode)
 
-args.experiment_name += '_Gs%d_Ds%d_Zdim%d_imgSize%d_batch_size%d_512pixel_512dim' % (args.Gscale, args.Dscale, args.z_dim, args.img_size,args.batch_size)
-
+#args.experiment_name += '_Gs%d_Ds%d_Zdim%d_imgSize%d_batch_size%d_256-stride4' % (args.Gscale, args.Dscale, args.z_dim, args.img_size,args.batch_size)
+args.experiment_name += '256_kenerl4_stride4'
 output_dir = os.path.join('output', args.experiment_name)
 
 if not os.path.exists('output'):
@@ -211,33 +211,37 @@ if __name__ == '__main__':
                         print('G_loss:'+str(G_loss)+'------'+'D_loss'+str(D_loss),file=f)
                         print('------------------------')
 
-                img_grid = torchvision.utils.make_grid(x_real, normalize=True, scale_each=True)  # B，C, H, W
-                writer.add_image('real_img_%d_%d'%(ep,it_g), img_grid)
-
-                #G
-                z = torch.randn(1,512,1,1).cuda()
-                for name, layer in G.net._modules.items():
-                    z = layer(z)
-                    if isinstance(layer, torch.nn.ConvTranspose2d):
-                        #print(z.shape)
-                        x1 = z.transpose(0, 1)  # C，B, H, W  ---> B，C, H, W
-                        img_grid = torchvision.utils.make_grid(x1, normalize=True, scale_each=True, nrow=30)  # B，C, H, W
-                        writer.add_image('feature_maps_G_%d_%d_%s'%(ep,it_g,name), img_grid)
-                        #torchvision.utils.save_image(x1,'feature_maps%s.png'%name, nrow=100)
-
-                #D
-                x = z
-                for name, layer in D.net._modules.items():
-                   x = layer(x)
-                   if isinstance(layer, torch.nn.Conv2d):
-                       x1 = x.transpose(0, 1)  # C，B, H, W  ---> B，C, H, W
-                       img_grid = torchvision.utils.make_grid(x1, normalize=True, scale_each=True, nrow=30)  # B，C, H, W
-                       writer.add_image('feature_maps_D_%d_%d_%s'%(ep,it_g,name), img_grid)
-                       #torchvision.utils.save_image(x1,'./D_feature_maps%s.png'%name, nrow=20)
-
         # save checkpoint
         if (ep+1)%10==0:   
             #torch.save(G.state_dict(), ckpt_dir+'/Epoch_G.pth') #保存每次需要覆盖
             #torch.save(D.state_dict(), ckpt_dir+'/Epoch_D.pth')
             torch.save(G.state_dict(), ckpt_dir+'/Epoch_G_%d.pth' % ep)
             torch.save(D.state_dict(), ckpt_dir+'/Epoch_D_%d.pth' % ep)
+
+        with torch.no_grad():
+            z = D(x_real)
+            x = G(z)
+            x_ = torch.cat((x,x_real))
+            img_grid = torchvision.utils.make_grid(x_, normalize=True, scale_each=True)  # B，C, H, W
+            writer.add_image('real_img_%d'%(ep), img_grid)
+
+            #G
+            z = torch.randn(1,512,1,1).cuda()
+            for name, layer in G.net._modules.items():
+                z = layer(z)
+                if isinstance(layer, torch.nn.ConvTranspose2d):
+                    #print(z.shape)
+                    x1 = z.transpose(0, 1)  # C，B, H, W  ---> B，C, H, W
+                    img_grid = torchvision.utils.make_grid(x1, normalize=True, scale_each=True, nrow=30)  # B，C, H, W
+                    writer.add_image('feature_maps_G_%d_%s'%(ep,name), img_grid)
+                    #torchvision.utils.save_image(x1,'feature_maps%s.png'%name, nrow=100)
+
+            #D
+            x = z
+            for name, layer in D.net._modules.items():
+                x = layer(x)
+                if isinstance(layer, torch.nn.Conv2d):
+                    x1 = x.transpose(0, 1)  # C，B, H, W  ---> B，C, H, W
+                    img_grid = torchvision.utils.make_grid(x1, normalize=True, scale_each=True, nrow=30)  # B，C, H, W
+                    writer.add_image('feature_maps_D_%d_%s'%(ep,name), img_grid)
+                    #torchvision.utils.save_image(x1,'./D_feature_maps%s.png'%name, nrow=20)
