@@ -46,7 +46,7 @@ if args.experiment_name == 'none':
         args.experiment_name += '_%s_%s' % (args.gradient_penalty_mode, args.gradient_penalty_sample_mode)
 
 #args.experiment_name += '_Gs%d_Ds%d_Zdim%d_imgSize%d_batch_size%d_256-stride4' % (args.Gscale, args.Dscale, args.z_dim, args.img_size,args.batch_size)
-args.experiment_name += '512channel_512pixel_noAE'
+args.experiment_name = '512channel_512pixel_noAE'
 output_dir = os.path.join('output', args.experiment_name)
 
 if not os.path.exists('output'):
@@ -226,7 +226,7 @@ if __name__ == '__main__':
             writer.add_image('real_img_%d'%(ep), img_grid)
 
             #G
-            z = torch.randn(1,arg.z_dim,1,1).cuda()
+            z = torch.randn(1,args.z_dim,1,1).cuda()
             for name, layer in G.net._modules.items():
                 z = layer(z)
                 if isinstance(layer, torch.nn.ConvTranspose2d):
