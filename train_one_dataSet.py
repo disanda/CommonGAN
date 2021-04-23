@@ -8,7 +8,7 @@ import os
 import yaml
 import torchvision
 import data
-import networks.D2E_512 as net
+import networks.D2E_FT as net
 import loss_func
 import g_penal
 from torchsummary import summary
@@ -24,13 +24,13 @@ parser = argparse.ArgumentParser(description='the training args')
 parser.add_argument('--epochs', type=int, default=100)
 parser.add_argument('--lr', type=float, default=0.0002)
 parser.add_argument('--beta_1', type=float, default=0.5)
-parser.add_argument('--batch_size', type=int, default=60)
+parser.add_argument('--batch_size', type=int, default=5)
 parser.add_argument('--adversarial_loss_mode', default='gan', choices=['gan', 'hinge_v1', 'hinge_v2', 'lsgan', 'wgan'])
 parser.add_argument('--gradient_penalty_mode', default='none', choices=['none', '1-gp', '0-gp', 'lp'])
 parser.add_argument('--gradient_penalty_sample_mode', default='line', choices=['line', 'real', 'fake', 'dragan'])
 parser.add_argument('--gradient_penalty_weight', type=float, default=10.0)
 parser.add_argument('--experiment_name', default='none')
-parser.add_argument('--img_size',type=int, default=512)
+parser.add_argument('--img_size',type=int, default=1024)
 parser.add_argument('--img_channels', type=int, default=3)# RGB:3 ,L:1
 parser.add_argument('--dataset', default='Celeba_HQ')#choices=['cifar10', 'fashion_mnist', 'mnist', 'celeba', 'anime', 'custom','Celeba_HQ'])
 parser.add_argument('--z_dim', type=int, default=512)
@@ -46,7 +46,8 @@ if args.experiment_name == 'none':
         args.experiment_name += '_%s_%s' % (args.gradient_penalty_mode, args.gradient_penalty_sample_mode)
 
 #args.experiment_name += '_Gs%d_Ds%d_Zdim%d_imgSize%d_batch_size%d_256-stride4' % (args.Gscale, args.Dscale, args.z_dim, args.img_size,args.batch_size)
-args.experiment_name = '512channel_512pixel_noAE_next'
+#args.experiment_name = '512channel_512pixel_noAE_next'
+args.experiment_name = '32'
 #args.experiment_name = 'gan256_k4_s4'
 output_dir = os.path.join('output', args.experiment_name)
 
@@ -75,10 +76,10 @@ print('data-size:    '+str(shape))
 # ==============================================================================
 #G = net.Generator(input_dim=args.z_dim, output_channels = args.img_channels, image_size=args.img_size, scale=args.Gscale, another_times=another_times_).to(device)
 #D = net.Discriminator_SpectrualNorm(input_dim=args.z_dim, input_channels = args.img_channels, image_size=args.img_size, Gscale=args.Gscale, Dscale=args.Dscale, another_times=another_times_).to(device)
-G = net.Generator().to(device)
-D = net.Discriminator_SpectrualNorm().to(device)
-G.load_state_dict(torch.load('/_wmwang/CommonGAN/output/Celeba_HQ_gan_Gs8_Ds1_Zdim512_imgSize512_batch_size5_512pixel_512dim_D2E/checkpoints/Epoch_G_9.pth',map_location=device)) #shadow的效果要好一些 
-D.load_state_dict(torch.load('/_wmwang/CommonGAN/output/Celeba_HQ_gan_Gs8_Ds1_Zdim512_imgSize512_batch_size5_512pixel_512dim_D2E/checkpoints/Epoch_D_9.pth',map_location=device))
+G = net.Generator(input_dim=512, output_channels=3, image_size=1024, first_hidden_dim_ = 512, last_hidden_dim_=32).to(device)
+D = net.Discriminator_SpectrualNorm(input_dim=512, input_channels=3, image_size=1024, first_hidden_dim_=32, last_hidden_dim_=512).to(device)
+# G.load_state_dict(torch.load('/_wmwang/CommonGAN/output/Celeba_HQ_gan_Gs8_Ds1_Zdim512_imgSize512_batch_size5_512pixel_512dim_D2E/checkpoints/Epoch_G_9.pth',map_location=device)) #shadow的效果要好一些 
+# D.load_state_dict(torch.load('/_wmwang/CommonGAN/output/Celeba_HQ_gan_Gs8_Ds1_Zdim512_imgSize512_batch_size5_512pixel_512dim_D2E/checkpoints/Epoch_D_9.pth',map_location=device))
 summary(G,(args.z_dim,1,1))
 summary(D,(3,args.img_size,args.img_size))
 x,y = net.get_parameter_number(G),net.get_parameter_number(D)
@@ -102,7 +103,7 @@ d_loss_fn, g_loss_fn = loss_func.get_adversarial_losses_fn(args.adversarial_loss
 # optimizer
 G_optimizer = torch.optim.Adam(G.parameters(), lr=args.lr, betas=(args.beta_1, 0.999))
 D_optimizer = torch.optim.Adam(D.parameters(), lr=args.lr, betas=(args.beta_1, 0.999))
-D2E_optimizer = torch.optim.Adam(itertools.chain(G.parameters(), D.parameters()),lr=0.0001,betas=(0.6, 0.95),amsgrad=True)#G,D都更新
+#D2E_optimizer = torch.optim.Adam(itertools.chain(G.parameters(), D.parameters()),lr=0.0001,betas=(0.6, 0.95),amsgrad=True)#G,D都更新
 #decayG = torch.optim.lr_scheduler.ExponentialLR(G_optimizer, gamma=1)
 #decayD = torch.optim.lr_scheduler.ExponentialLR(D_optimizer, gamma=1)
 
@@ -179,30 +180,30 @@ if __name__ == '__main__':
                 writer.add_scalar('G/%s' % k, v.data.cpu().numpy(), global_step=it_g)
 
 #-----------training GD----------
-            with torch.autograd.set_detect_anomaly(True):
-                loss_mse = torch.nn.MSELoss()
-                #loss_lpips = lpips.LPIPS(net='vgg').to('cuda')
-                #loss_kl = torch.nn.KLDivLoss()
-                #loss_ce = torch.nn.CrossEntropyLoss()
-                x_g = G(z)
-                x_d = D(x_real)
-                #DE_loss = 0
-                #for i,j in zip(x_g,x_d) :
-                    #DE_loss = loss_mse(i,j)+DE_loss
-                DE_loss_1 = loss_mse(x_g,x_real)
-                DE_loss_2 = loss_mse(x_d,z)
-                DE_loss = DE_loss_1+DE_loss_2
-                DE_loss.backward()
-                D_optimizer.step()
-                #l2 = (1-abs(torch.cosine_similarity(x_real.view(x_real.shape[0],-1),x_fake.view(x_fake.shape[0],-1)))).mean()
-                #l3 = loss_lpips(x_real,x_fake).mean()
-                #print(l2)
-                #print(l3)
+            # with torch.autograd.set_detect_anomaly(True):
+            #     loss_mse = torch.nn.MSELoss()
+            #     #loss_lpips = lpips.LPIPS(net='vgg').to('cuda')
+            #     #loss_kl = torch.nn.KLDivLoss()
+            #     #loss_ce = torch.nn.CrossEntropyLoss()
+            #     x_g = G(z)
+            #     x_d = D(x_real)
+            #     #DE_loss = 0
+            #     #for i,j in zip(x_g,x_d) :
+            #         #DE_loss = loss_mse(i,j)+DE_loss
+            #     DE_loss_1 = loss_mse(x_g,x_real)
+            #     DE_loss_2 = loss_mse(x_d,z)
+            #     DE_loss = DE_loss_1+DE_loss_2
+            #     DE_loss.backward()
+            #     D_optimizer.step()
+            #     #l2 = (1-abs(torch.cosine_similarity(x_real.view(x_real.shape[0],-1),x_fake.view(x_fake.shape[0],-1)))).mean()
+            #     #l3 = loss_lpips(x_real,x_fake).mean()
+            #     #print(l2)
+            #     #print(l3)
 
 
-            GE_loss_dict = {'gD_loss': DE_loss}
-            for k, v in GE_loss_dict.items():
-                writer.add_scalar('GD/%s' % k, v.data.cpu().numpy(), global_step=it_g)
+            # GE_loss_dict = {'gD_loss': DE_loss}
+            # for k, v in GE_loss_dict.items():
+            #     writer.add_scalar('GD/%s' % k, v.data.cpu().numpy(), global_step=it_g)
 
 #--------------save---------------
             if (it_g)%100==0:
