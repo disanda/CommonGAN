@@ -30,7 +30,7 @@ def get_para_GByte(parameter_number):
      return {'Total_GB': x, 'Trainable_BG': y}
 
 class Generator(nn.Module):
-    def __init__(self, hidden_dim=512, output_channels=3, image_size=512):
+    def __init__(self, hidden_dim=512, output_channels=3, image_size=1024):
         super().__init__()
         layers = []
         up_times = math.log(image_size,2)- 3 # 输入为4*4时,少一次
@@ -63,7 +63,7 @@ class Generator(nn.Module):
         return x
 
 class Discriminator_SpectrualNorm(nn.Module):
-    def __init__(self, hidden_dim=512, input_channels=3, image_size=512): #新版的Dscale是相对G缩小的倍数
+    def __init__(self, hidden_dim=512, input_channels=3, image_size=1024): #新版的Dscale是相对G缩小的倍数
         super().__init__()
         layers=[]
         up_times = math.log(image_size,2)- 3
