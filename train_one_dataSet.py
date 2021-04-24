@@ -76,8 +76,8 @@ print('data-size:    '+str(shape))
 # ==============================================================================
 #G = net.Generator(input_dim=args.z_dim, output_channels = args.img_channels, image_size=args.img_size, scale=args.Gscale, another_times=another_times_).to(device)
 #D = net.Discriminator_SpectrualNorm(input_dim=args.z_dim, input_channels = args.img_channels, image_size=args.img_size, Gscale=args.Gscale, Dscale=args.Dscale, another_times=another_times_).to(device)
-G = net.Generator(input_dim=512, output_channels=3, image_size=1024, first_hidden_dim_ = 512, last_hidden_dim_=32).to(device)
-D = net.Discriminator_SpectrualNorm(input_dim=512, input_channels=3, image_size=1024, first_hidden_dim_=32, last_hidden_dim_=512).to(device)
+G = net.Generator().to(device)
+D = net.Discriminator_SpectrualNorm().to(device)
 # G.load_state_dict(torch.load('/_wmwang/CommonGAN/output/Celeba_HQ_gan_Gs8_Ds1_Zdim512_imgSize512_batch_size5_512pixel_512dim_D2E/checkpoints/Epoch_G_9.pth',map_location=device)) #shadow的效果要好一些 
 # D.load_state_dict(torch.load('/_wmwang/CommonGAN/output/Celeba_HQ_gan_Gs8_Ds1_Zdim512_imgSize512_batch_size5_512pixel_512dim_D2E/checkpoints/Epoch_D_9.pth',map_location=device))
 summary(G,(args.z_dim,1,1))
