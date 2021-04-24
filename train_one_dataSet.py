@@ -47,7 +47,7 @@ if args.experiment_name == 'none':
 
 #args.experiment_name += '_Gs%d_Ds%d_Zdim%d_imgSize%d_batch_size%d_256-stride4' % (args.Gscale, args.Dscale, args.z_dim, args.img_size,args.batch_size)
 #args.experiment_name = '512channel_512pixel_noAE_next'
-args.experiment_name = '512to512_1024piexel'
+args.experiment_name = '64to512_1024piexel'
 #args.experiment_name = 'gan256_k4_s4'
 output_dir = os.path.join('output', args.experiment_name)
 
