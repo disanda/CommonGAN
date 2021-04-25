@@ -37,7 +37,7 @@ class Generator(nn.Module):
         #layers.append(nn.ConvTranspose2d(input_dim, first_hidden_dim, kernel_size=4,stride=2,padding=1,bias=bias_flag)) # 4*4 input -> 8*8
         #layers.append(nn.BatchNorm2d(first_hidden_dim))
         layers.append(nn.InstanceNorm2d(first_hidden_dim, affine=False, eps=1e-8))
-        layers.append(nn.ReLU())
+        layers.append(nn.LeakyReLU(0.2, inplace=True))
 
         # 2: upsamplings, 4x4 -> 8x8 -> 16x16 -> 32*32
         hidden_dim = first_hidden_dim
@@ -46,18 +46,18 @@ class Generator(nn.Module):
                 layers.append(nn.ConvTranspose2d(hidden_dim, hidden_dim//2, kernel_size=4, stride=2, padding=1 ,bias=bias_flag))
                 #layers.append(nn.BatchNorm2d(hidden_dim//2))
                 layers.append(nn.InstanceNorm2d(hidden_dim//2, affine=False, eps=1e-8))
-                layers.append(nn.ReLU())
+                layers.append(nn.LeakyReLU(0.2, inplace=True))
                 hidden_dim = hidden_dim // 2
             else:
                 layers.append(nn.ConvTranspose2d(hidden_dim, hidden_dim, kernel_size=4, stride=2, padding=1 ,bias=bias_flag))
                 #layers.append(nn.BatchNorm2d(hidden_dim))
                 layers.append(nn.InstanceNorm2d(hidden_dim, affine=False, eps=1e-8))
-                layers.append(nn.ReLU())
+                layers.append(nn.LeakyReLU(0.2, inplace=True))
             up_times = up_times - 1
 
         # 3:end 
         layers.append(nn.ConvTranspose2d(hidden_dim,output_channels,kernel_size=4, stride=2, padding=1, bias=bias_flag))
-        layers.append(nn.Tanh())
+        #layers.append(nn.Tanh())
 
         # all
         self.net = nn.Sequential(*layers)

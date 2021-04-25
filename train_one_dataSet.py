@@ -14,6 +14,7 @@ import g_penal
 from torchsummary import summary
 import itertools
 import lpips
+import randomF as rf
 
 # ==============================================================================
 # =                                   param                                    =
@@ -78,8 +79,8 @@ print('data-size:    '+str(shape))
 #D = net.Discriminator_SpectrualNorm(input_dim=args.z_dim, input_channels = args.img_channels, image_size=args.img_size, Gscale=args.Gscale, Dscale=args.Dscale, another_times=another_times_).to(device)
 #G = net.Generator().to(device)
 #D = net.Discriminator_SpectrualNorm().to(device)
-G = net.Generator(input_dim = 512, output_channels = 3, image_size = 1024, first_hidden_dim_ = 512, last_hidden_dim_= 64).to(device)
-D = net.Discriminator_SpectrualNorm(input_dim = 512, input_channels = 3, image_size=1024, first_hidden_dim_= 64, last_hidden_dim_=512).to(device)
+G = net.Generator(input_dim = 512, output_channels = 3, image_size = 512, first_hidden_dim_ = 512, last_hidden_dim_= 64).to(device)
+D = net.Discriminator_SpectrualNorm(input_dim = 512, input_channels = 3, image_size=512, first_hidden_dim_= 64, last_hidden_dim_=512).to(device)
 # G.load_state_dict(torch.load('/_wmwang/CommonGAN/output/Celeba_HQ_gan_Gs8_Ds1_Zdim512_imgSize512_batch_size5_512pixel_512dim_D2E/checkpoints/Epoch_G_9.pth',map_location=device)) #shadow的效果要好一些 
 # D.load_state_dict(torch.load('/_wmwang/CommonGAN/output/Celeba_HQ_gan_Gs8_Ds1_Zdim512_imgSize512_batch_size5_512pixel_512dim_D2E/checkpoints/Epoch_D_9.pth',map_location=device))
 summary(G,(args.z_dim,1,1))
@@ -181,26 +182,38 @@ if __name__ == '__main__':
             for k, v in G_loss_dict.items():
                 writer.add_scalar('G/%s' % k, v.data.cpu().numpy(), global_step=it_g)
 
-#-----------training GD----------
-            # with torch.autograd.set_detect_anomaly(True):
-            #     loss_mse = torch.nn.MSELoss()
-            #     #loss_lpips = lpips.LPIPS(net='vgg').to('cuda')
-            #     #loss_kl = torch.nn.KLDivLoss()
-            #     #loss_ce = torch.nn.CrossEntropyLoss()
-            #     x_g = G(z)
-            #     x_d = D(x_real)
-            #     #DE_loss = 0
-            #     #for i,j in zip(x_g,x_d) :
-            #         #DE_loss = loss_mse(i,j)+DE_loss
-            #     DE_loss_1 = loss_mse(x_g,x_real)
-            #     DE_loss_2 = loss_mse(x_d,z)
-            #     DE_loss = DE_loss_1+DE_loss_2
-            #     DE_loss.backward()
-            #     D_optimizer.step()
-            #     #l2 = (1-abs(torch.cosine_similarity(x_real.view(x_real.shape[0],-1),x_fake.view(x_fake.shape[0],-1)))).mean()
-            #     #l3 = loss_lpips(x_real,x_fake).mean()
-            #     #print(l2)
-            #     #print(l3)
+#-----------training D2E----------
+            with torch.autograd.set_detect_anomaly(True):
+                loss_mse = torch.nn.MSELoss()
+                loss_lpips = lpips.LPIPS(net='vgg').to('cuda') #16*16以后可以用
+                loss_ce = torch.nn.CrossEntropyLoss()
+                yD = findF_Dv2(D,x_real)
+                yG = findF_Gv2(G,yD[-1])
+                flag=0 # 1->4->8->16
+                for i,j in zip(yD,yG):
+                    l1 = loss_mse(i,j)
+                    l2 = (1-abs(torch.cosine_similarity(i.view(i.shape[0],-1),j.view(j.shape[0],-1)))).mean()
+                    if flag == 0:
+                        l3 = loss_ce(i, torch.max(j, 1)[1])
+                    else:
+                        l3 =0
+                    if flag >2:
+                        if i.dim()==3:
+                            i = i.unsqueeze(1)
+                            j = j.unsqueeze(1)
+                            l4 = loss_lpips(i,j).mean()
+                        else: # i.dim()==4
+                            l4 = loss_lpips(i,j).mean()
+                    else:
+                        l4 =0
+                    flag = flag + 1 
+                    DE_loss = l1+l2+l3+l4
+                    DE_loss.backward(retain_graph=True)
+                    D_optimizer.step()
+                #l2 = (1-abs(torch.cosine_similarity(x_real.view(x_real.shape[0],-1),x_fake.view(x_fake.shape[0],-1)))).mean()
+                #l3 = loss_lpips(x_real,x_fake).mean()
+                #print(l2)
+                #print(l3)
 
 
             # GE_loss_dict = {'gD_loss': DE_loss}
@@ -214,6 +227,7 @@ if __name__ == '__main__':
                     with open(output_dir+'/loss.txt','a+') as f:
                         print('G_loss:'+str(G_loss)+'------'+'D_loss'+str(D_loss),file=f)
                         print('------------------------')
+                        print('l1:'+str(l1)+'_'+'l2'+str(l2)+'_'+'l3'+str(l3)+'_'+'l4'+str(l4),file=f)
 
         # save checkpoint
         if (ep+1)%10==0:   
@@ -226,7 +240,10 @@ if __name__ == '__main__':
             z = D(x_real)
             x = G(z)
             x_ = torch.cat((x,x_real))
-            img_grid = torchvision.utils.make_grid(x_, normalize=True, scale_each=True)  # B，C, H, W
+            z_ = D(x)
+            x__ = G(z_)
+            x__ = torch.cat((x_,x__))
+            img_grid = torchvision.utils.make_grid(x_, normalize=True, scale_each=True, nrow=args.batch_size)  # B，C, H, W
             writer.add_image('real_img_%d'%(ep), img_grid)
 
             #G
