@@ -56,17 +56,17 @@ def findF_Dv2(model,x):
     return y
 
 #test
-import networks.D2E_FT as net
-G = net.Generator(input_dim = 512, output_channels = 3, image_size = 512, first_hidden_dim_ = 512, last_hidden_dim_= 64)
-D = net.Discriminator_SpectrualNorm(input_dim = 512, input_channels = 3, image_size=512, first_hidden_dim_= 64, last_hidden_dim_=512)
-x1 = torch.randn(2,3,512,512)
-y1 = findF_Dv2(D,x1)
-for i in y1:
-    print(i.shape)
+# import networks.D2E_FT as net
+# G = net.Generator(input_dim = 512, output_channels = 3, image_size = 512, first_hidden_dim_ = 512, last_hidden_dim_= 64)
+# D = net.Discriminator_SpectrualNorm(input_dim = 512, input_channels = 3, image_size=512, first_hidden_dim_= 64, last_hidden_dim_=512)
+# x1 = torch.randn(2,3,512,512)
+# y1 = findF_Dv2(D,x1)
+# for i in y1:
+#     print(i.shape)
 
-#x2 = torch.randn(2,512,1,1)
-x2 = y1[0].unsqueeze(2).unsqueeze(2)
-print(x2.shape)
-y2 = findF_Gv2(G,x2)
-for i in y2:
-    print(i.shape)
+# #x2 = torch.randn(2,512,1,1)
+# x2 = y1[0].unsqueeze(2).unsqueeze(2)
+# print(x2.shape)
+# y2 = findF_Gv2(G,x2)
+# for i in y2:
+#     print(i.shape)
