@@ -189,7 +189,7 @@ if __name__ == '__main__':
                 loss_ce = torch.nn.CrossEntropyLoss()
                 yD = rf.findF_Dv2(D,x_real)
                 x_fake_2=yD[0].unsqueeze(2).unsqueeze(2)
-                yG = rf.findF_Gv2(G,x_fake_2)
+                yG = rf.findF_Gv2(G,x_fake_2.detach())
                 flag=0 # 1->4->8->16
                 for i,j in zip(yD,yG):
                     l1 = loss_mse(i,j)
