@@ -188,7 +188,7 @@ if __name__ == '__main__':
                 loss_lpips = lpips.LPIPS(net='vgg').to('cuda') #16*16以后可以用
                 loss_ce = torch.nn.CrossEntropyLoss()
                 yD = rf.findF_Dv2(D,x_real)
-                yG = rf.findF_Gv2(G,yD[-1])
+                yG = rf.findF_Gv2(G,yD[0].unsqueeze(2).unsqueeze(2))
                 flag=0 # 1->4->8->16
                 for i,j in zip(yD,yG):
                     l1 = loss_mse(i,j)
