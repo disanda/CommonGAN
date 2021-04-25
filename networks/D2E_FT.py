@@ -30,7 +30,7 @@ class Generator(nn.Module):
         layers = []
         up_times = math.log(image_size,2)- 3 - another_times # 减去前两次 1->2->4， 及最后一次， 方便中间写循环
         first_hidden_dim = first_hidden_dim_ # 这里对应输入维度，表示《输入维度》对应《网络中间层维度（起点）》的放大倍数
-        bias_flag = False
+        bias_flag = True
 
         # 1: 
         layers.append(nn.ConvTranspose2d(input_dim, first_hidden_dim, kernel_size=4,stride=1,padding=0,bias=bias_flag)) # 1*1 input -> 4*4
@@ -72,7 +72,7 @@ class Discriminator_SpectrualNorm(nn.Module):
         layers=[]
         up_times = math.log(image_size,2)- 3 - another_times
         first_hidden_dim = first_hidden_dim_
-        bias_flag = False
+        bias_flag = True
 
         # 1:
         #layers.append(spectral_norm(nn.Conv2d(input_channels, first_hidden_dim, kernel_size=4, stride=2, padding=1, bias=bias_flag)))
