@@ -209,7 +209,7 @@ if __name__ == '__main__':
                         l4 =0
                     flag = flag + 1 
                     DE_loss = l1+l2+l3+l4
-                    DE_loss.backward(retain_graph=True)
+                    DE_loss.backward()
                     D_optimizer.step()
                 #l2 = (1-abs(torch.cosine_similarity(x_real.view(x_real.shape[0],-1),x_fake.view(x_fake.shape[0],-1)))).mean()
                 #l3 = loss_lpips(x_real,x_fake).mean()
