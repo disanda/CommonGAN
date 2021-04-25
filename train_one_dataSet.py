@@ -215,7 +215,7 @@ if __name__ == '__main__':
                             print('------------------------')
                             print('eg:'+str(it_g)+'l1:'+str(l1)+'_'+'l2:'+str(l2)+'_'+'l3:'+str(l3)+'_'+'l4:'+str(l4),file=f)
                             print('DE_loss:'+str(DE_loss),file=f)
-                print(DE_loss)
+                #print(DE_loss)
                 DE_loss.backward(retain_graph=True)
                 D_optimizer.step()
                 #l2 = (1-abs(torch.cosine_similarity(x_real.view(x_real.shape[0],-1),x_fake.view(x_fake.shape[0],-1)))).mean()
