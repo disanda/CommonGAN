@@ -197,10 +197,9 @@ if __name__ == '__main__':
                     l2 = (1-abs(torch.cosine_similarity(i.view(i.shape[0],-1),j.view(j.shape[0],-1)))).mean()
                     if flag == 0:
                         l3 = loss_ce(i, torch.max(j, 1)[1])
-                        l1 = l1*100
                     else:
                         l3 =0
-                    if flag >2:
+                    if flag >6:
                         if i.dim()==3:
                             i = i.unsqueeze(1)
                             j = j.unsqueeze(1)
@@ -211,7 +210,12 @@ if __name__ == '__main__':
                         l4 =0
                     flag = flag + 1 
                     DE_loss = DE_loss + l1+l2+l3+l4
-                    print(DE_loss)
+                    if it_g%100==0:
+                        with open(output_dir+'/loss.txt','a+') as f:
+                            print('------------------------')
+                            print('eg:'+str(it_g)+'l1:'+str(l1)+'_'+'l2:'+str(l2)+'_'+'l3:'+str(l3)+'_'+'l4:'+str(l4),file=f)
+                            print('DE_loss:'+str(DE_loss),file=f)
+                print(DE_loss)
                 DE_loss.backward(retain_graph=True)
                 D_optimizer.step()
                 #l2 = (1-abs(torch.cosine_similarity(x_real.view(x_real.shape[0],-1),x_fake.view(x_fake.shape[0],-1)))).mean()
@@ -231,7 +235,7 @@ if __name__ == '__main__':
                     with open(output_dir+'/loss.txt','a+') as f:
                         print('G_loss:'+str(G_loss)+'------'+'D_loss'+str(D_loss),file=f)
                         print('------------------------')
-                        print('l1:'+str(l1)+'_'+'l2'+str(l2)+'_'+'l3'+str(l3)+'_'+'l4'+str(l4),file=f)
+                        print('l1:'+str(l1)+'_'+'l2:'+str(l2)+'_'+'l3:'+str(l3)+'_'+'l4:'+str(l4),file=f)
 
         # save checkpoint
         if (ep+1)%10==0:   
