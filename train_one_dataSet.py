@@ -197,6 +197,7 @@ if __name__ == '__main__':
                     l2 = (1-abs(torch.cosine_similarity(i.view(i.shape[0],-1),j.view(j.shape[0],-1)))).mean()
                     if flag == 0:
                         l3 = loss_ce(i, torch.max(j, 1)[1])
+                        l1 = l1*100
                     else:
                         l3 =0
                     if flag >2:
