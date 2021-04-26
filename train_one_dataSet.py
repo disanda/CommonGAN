@@ -199,7 +199,7 @@ if __name__ == '__main__':
                         l3 = loss_ce(i, torch.max(j, 1)[1])
                     else:
                         l3 =0
-                    if flag = len(yD): # 0-4,1-8, 2-16, 3-32 , 4-64, 5-128, 6-256
+                    if flag == len(yD): # 0-4,1-8, 2-16, 3-32 , 4-64, 5-128, 6-256
                         if i.dim()==3:
                             i = i.unsqueeze(1)
                             j = j.unsqueeze(1)
