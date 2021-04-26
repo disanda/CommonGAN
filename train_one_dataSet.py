@@ -8,7 +8,7 @@ import os
 import yaml
 import torchvision
 import data
-import networks.D2E_FT as net
+import networks.D2E_512 as net
 import loss_func
 import g_penal
 from torchsummary import summary
@@ -31,7 +31,7 @@ parser.add_argument('--gradient_penalty_mode', default='none', choices=['none', 
 parser.add_argument('--gradient_penalty_sample_mode', default='line', choices=['line', 'real', 'fake', 'dragan'])
 parser.add_argument('--gradient_penalty_weight', type=float, default=10.0)
 parser.add_argument('--experiment_name', default='none')
-parser.add_argument('--img_size',type=int, default=512)
+parser.add_argument('--img_size',type=int, default=256)
 parser.add_argument('--img_channels', type=int, default=3)# RGB:3 ,L:1
 parser.add_argument('--dataset', default='Celeba_HQ')#choices=['cifar10', 'fashion_mnist', 'mnist', 'celeba', 'anime', 'custom','Celeba_HQ'])
 parser.add_argument('--z_dim', type=int, default=512)
@@ -48,7 +48,7 @@ if args.experiment_name == 'none':
 
 #args.experiment_name += '_Gs%d_Ds%d_Zdim%d_imgSize%d_batch_size%d_256-stride4' % (args.Gscale, args.Dscale, args.z_dim, args.img_size,args.batch_size)
 #args.experiment_name = '512channel_512pixel_noAE_next'
-args.experiment_name = '64to512_512piexel_multiscale_D2E'
+args.experiment_name = '512to512_256piexl_multiscale_D2E'
 #args.experiment_name = 'gan256_k4_s4'
 output_dir = os.path.join('output', args.experiment_name)
 
@@ -77,10 +77,10 @@ print('data-size:    '+str(shape))
 # ==============================================================================
 #G = net.Generator(input_dim=args.z_dim, output_channels = args.img_channels, image_size=args.img_size, scale=args.Gscale, another_times=another_times_).to(device)
 #D = net.Discriminator_SpectrualNorm(input_dim=args.z_dim, input_channels = args.img_channels, image_size=args.img_size, Gscale=args.Gscale, Dscale=args.Dscale, another_times=another_times_).to(device)
-#G = net.Generator().to(device)
-#D = net.Discriminator_SpectrualNorm().to(device)
-G = net.Generator(input_dim = 512, output_channels = 3, image_size = 512, first_hidden_dim_ = 512, last_hidden_dim_= 64).to(device)
-D = net.Discriminator_SpectrualNorm(input_dim = 512, input_channels = 3, image_size=512, first_hidden_dim_= 64, last_hidden_dim_=512).to(device)
+G = net.Generator(hidden_dim=512, output_channels=3, image_size=args.image_size).to(device)
+D = net.Discriminator_SpectrualNorm(hidden_dim=512, input_channels=3, image_size=args.image_size).to(device)
+#G = net.Generator(input_dim = 512, output_channels = 3, image_size = 512, first_hidden_dim_ = 512, last_hidden_dim_= 64).to(device)
+#D = net.Discriminator_SpectrualNorm(input_dim = 512, input_channels = 3, image_size=512, first_hidden_dim_= 64, last_hidden_dim_=512).to(device)
 # G.load_state_dict(torch.load('/_wmwang/CommonGAN/output/Celeba_HQ_gan_Gs8_Ds1_Zdim512_imgSize512_batch_size5_512pixel_512dim_D2E/checkpoints/Epoch_G_9.pth',map_location=device)) #shadow的效果要好一些 
 # D.load_state_dict(torch.load('/_wmwang/CommonGAN/output/Celeba_HQ_gan_Gs8_Ds1_Zdim512_imgSize512_batch_size5_512pixel_512dim_D2E/checkpoints/Epoch_D_9.pth',map_location=device))
 summary(G,(args.z_dim,1,1))
@@ -199,11 +199,12 @@ if __name__ == '__main__':
                         l3 = loss_ce(i, torch.max(j, 1)[1])
                     else:
                         l3 =0
-                    if flag >6:
+                    if flag = len(yD): # 0-4,1-8, 2-16, 3-32 , 4-64, 5-128, 6-256
                         if i.dim()==3:
                             i = i.unsqueeze(1)
                             j = j.unsqueeze(1)
                             l4 = loss_lpips(i,j).mean()
+                            print('false')
                         else: # i.dim()==4
                             l4 = loss_lpips(i,j).mean()
                     else:
@@ -224,9 +225,9 @@ if __name__ == '__main__':
                 #print(l3)
 
 
-            # GE_loss_dict = {'gD_loss': DE_loss}
-            # for k, v in GE_loss_dict.items():
-            #     writer.add_scalar('GD/%s' % k, v.data.cpu().numpy(), global_step=it_g)
+            GE_loss_dict = {'gD_loss': DE_loss}
+            for k, v in GE_loss_dict.items():
+                writer.add_scalar('GD/%s' % k, v.data.cpu().numpy(), global_step=it_g)
 
 #--------------save---------------
             if it_g%200==0:
