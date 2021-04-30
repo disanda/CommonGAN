@@ -25,7 +25,7 @@ parser = argparse.ArgumentParser(description='the training args')
 parser.add_argument('--epochs', type=int, default=100)
 parser.add_argument('--lr', type=float, default=0.0002)
 parser.add_argument('--beta_1', type=float, default=0.5)
-parser.add_argument('--batch_size', type=int, default=10)
+parser.add_argument('--batch_size', type=int, default=60)
 parser.add_argument('--adversarial_loss_mode', default='gan', choices=['gan', 'hinge_v1', 'hinge_v2', 'lsgan', 'wgan'])
 parser.add_argument('--gradient_penalty_mode', default='none', choices=['none', '1-gp', '0-gp', 'lp'])
 parser.add_argument('--gradient_penalty_sample_mode', default='line', choices=['line', 'real', 'fake', 'dragan'])
@@ -183,51 +183,51 @@ if __name__ == '__main__':
                 writer.add_scalar('G/%s' % k, v.data.cpu().numpy(), global_step=it_g)
 
 #-----------training D2E----------
-            with torch.autograd.set_detect_anomaly(True):
-                loss_mse = torch.nn.MSELoss()
-                loss_lpips = lpips.LPIPS(net='vgg').to('cuda') #16*16以后可以用
-                loss_ce = torch.nn.CrossEntropyLoss()
-                yD = rf.findF_Dv2(D,x_real)
-                x_fake_2=yD[0].unsqueeze(2).unsqueeze(2)
-                yG = rf.findF_Gv2(G,x_fake_2.detach())
-                flag=0 # 1->4->8->16
-                DE_loss = 0
-                for i,j in zip(yD,yG):
-                    l1 = loss_mse(i,j)
-                    l2 = (1-abs(torch.cosine_similarity(i.view(i.shape[0],-1),j.view(j.shape[0],-1)))).mean()
-                    if flag == 0:
-                        l3 = loss_ce(i, torch.max(j, 1)[1])
-                    else:
-                        l3 =0
-                    if flag == len(yD): # 0-4,1-8, 2-16, 3-32 , 4-64, 5-128, 6-256
-                        if i.dim()==3:
-                            i = i.unsqueeze(1)
-                            j = j.unsqueeze(1)
-                            l4 = loss_lpips(i,j).mean()
-                            print('false')
-                        else: # i.dim()==4
-                            l4 = loss_lpips(i,j).mean()
-                    else:
-                        l4 =0
-                    flag = flag + 1 
-                    DE_loss = DE_loss + l1+l2+l3+l4
-                    if it_g%100==0:
-                        with open(output_dir+'/loss.txt','a+') as f:
-                            print('------------------------')
-                            print('eg:'+str(it_g)+'l1:'+str(l1)+'_'+'l2:'+str(l2)+'_'+'l3:'+str(l3)+'_'+'l4:'+str(l4),file=f)
-                            print('DE_loss:'+str(DE_loss),file=f)
-                #print(DE_loss)
-                DE_loss.backward(retain_graph=True)
-                D_optimizer.step()
-                #l2 = (1-abs(torch.cosine_similarity(x_real.view(x_real.shape[0],-1),x_fake.view(x_fake.shape[0],-1)))).mean()
-                #l3 = loss_lpips(x_real,x_fake).mean()
-                #print(l2)
-                #print(l3)
+            # with torch.autograd.set_detect_anomaly(True):
+            #     loss_mse = torch.nn.MSELoss()
+            #     loss_lpips = lpips.LPIPS(net='vgg').to('cuda') #16*16以后可以用
+            #     loss_ce = torch.nn.CrossEntropyLoss()
+            #     yD = rf.findF_Dv2(D,x_real)
+            #     x_fake_2=yD[0].unsqueeze(2).unsqueeze(2)
+            #     yG = rf.findF_Gv2(G,x_fake_2.detach())
+            #     flag=0 # 1->4->8->16
+            #     DE_loss = 0
+            #     for i,j in zip(yD,yG):
+            #         l1 = loss_mse(i,j)
+            #         l2 = (1-abs(torch.cosine_similarity(i.view(i.shape[0],-1),j.view(j.shape[0],-1)))).mean()
+            #         if flag == 0:
+            #             l3 = loss_ce(i, torch.max(j, 1)[1])
+            #         else:
+            #             l3 =0
+            #         if flag == len(yD): # 0-4,1-8, 2-16, 3-32 , 4-64, 5-128, 6-256
+            #             if i.dim()==3:
+            #                 i = i.unsqueeze(1)
+            #                 j = j.unsqueeze(1)
+            #                 l4 = loss_lpips(i,j).mean()
+            #                 print('false')
+            #             else: # i.dim()==4
+            #                 l4 = loss_lpips(i,j).mean()
+            #         else:
+            #             l4 =0
+            #         flag = flag + 1 
+            #         DE_loss = DE_loss + l1+l2+l3+l4
+            #         if it_g%100==0:
+            #             with open(output_dir+'/loss.txt','a+') as f:
+            #                 print('------------------------')
+            #                 print('eg:'+str(it_g)+'l1:'+str(l1)+'_'+'l2:'+str(l2)+'_'+'l3:'+str(l3)+'_'+'l4:'+str(l4),file=f)
+            #                 print('DE_loss:'+str(DE_loss),file=f)
+            #     #print(DE_loss)
+            #     DE_loss.backward(retain_graph=True)
+            #     D_optimizer.step()
+            #     #l2 = (1-abs(torch.cosine_similarity(x_real.view(x_real.shape[0],-1),x_fake.view(x_fake.shape[0],-1)))).mean()
+            #     #l3 = loss_lpips(x_real,x_fake).mean()
+            #     #print(l2)
+            #     #print(l3)
 
 
-            GE_loss_dict = {'gD_loss': DE_loss}
-            for k, v in GE_loss_dict.items():
-                writer.add_scalar('GD/%s' % k, v.data.cpu().numpy(), global_step=it_g)
+            # GE_loss_dict = {'gD_loss': DE_loss}
+            # for k, v in GE_loss_dict.items():
+            #     writer.add_scalar('GD/%s' % k, v.data.cpu().numpy(), global_step=it_g)
 
 #--------------save---------------
             if it_g%200==0:
@@ -235,8 +235,8 @@ if __name__ == '__main__':
                     torchvision.utils.save_image(x_fake,sample_dir+'/ep%d_it%d.jpg'%(ep,it_g), nrow=10)
                     with open(output_dir+'/loss.txt','a+') as f:
                         print('G_loss:'+str(G_loss)+'------'+'D_loss'+str(D_loss),file=f)
-                        print('------------------------')
-                        print('l1:'+str(l1)+'_'+'l2:'+str(l2)+'_'+'l3:'+str(l3)+'_'+'l4:'+str(l4),file=f)
+                        #print('------------------------')
+                        #print('l1:'+str(l1)+'_'+'l2:'+str(l2)+'_'+'l3:'+str(l3)+'_'+'l4:'+str(l4),file=f)
 
         # save checkpoint
         if (ep+1)%10==0:   
@@ -245,15 +245,15 @@ if __name__ == '__main__':
             torch.save(G.state_dict(), ckpt_dir+'/Epoch_G_%d.pth' % ep)
             torch.save(D.state_dict(), ckpt_dir+'/Epoch_D_%d.pth' % ep)
 
-        with torch.no_grad():
-            z = D(x_real)
-            x = G(z)
-            x_ = torch.cat((x,x_real))
-            z_ = D(x)
-            x__ = G(z_)
-            x__ = torch.cat((x_,x__))
-            img_grid = torchvision.utils.make_grid(x_, normalize=True, scale_each=True, nrow=args.batch_size)  # B，C, H, W
-            writer.add_image('real_img_%d'%(ep), img_grid)
+        # with torch.no_grad():
+        #     z = D(x_real)
+        #     x = G(z)
+        #     x_ = torch.cat((x,x_real))
+        #     z_ = D(x)
+        #     x__ = G(z_)
+        #     x__ = torch.cat((x_,x__))
+        #     img_grid = torchvision.utils.make_grid(x_, normalize=True, scale_each=True, nrow=args.batch_size)  # B，C, H, W
+        #     writer.add_image('real_img_%d'%(ep), img_grid)
 
             #G
             z = torch.randn(1,args.z_dim,1,1).cuda()
