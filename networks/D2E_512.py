@@ -38,7 +38,7 @@ class Generator(nn.Module):
 
         # 1: 1x1 -> 4x4
         #layers.append(nn.ConvTranspose2d(hidden_dim, hidden_dim, kernel_size=4,stride=1,padding=0,bias=bias_flag)) # 1*1 input -> 4*4
-        layers.append(nn.ConvTranspose2d(input_dim, hidden_dim, kernel_size=4,stride=2,padding=1,bias=bias_flag)) # 4*4 input -> 8*8
+        layers.append(nn.ConvTranspose2d(hidden_dim, hidden_dim, kernel_size=4,stride=2,padding=1,bias=bias_flag)) # 4*4 input -> 8*8
         #layers.append(nn.BatchNorm2d(first_hidden_dim))
         layers.append(nn.InstanceNorm2d(hidden_dim, affine=False, eps=1e-8))
         layers.append(nn.ReLU())
