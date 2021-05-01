@@ -256,7 +256,6 @@ if __name__ == '__main__':
         #     writer.add_image('real_img_%d'%(ep), img_grid)
 
             #G
-            z = torch.randn(1,args.z_dim,1,1).cuda()
             for name, layer in G.net._modules.items():
                 z = layer(z)
                 if isinstance(layer, torch.nn.ConvTranspose2d):
