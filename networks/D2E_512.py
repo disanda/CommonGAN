@@ -66,7 +66,7 @@ class Discriminator_SpectrualNorm(nn.Module):
     def __init__(self, hidden_dim=512, input_channels=3, image_size=1024, uptimes=0): #新版的Dscale是相对G缩小的倍数
         super().__init__()
         layers=[]
-        up_times = math.log(image_size,2)- 3 + uptimes
+        up_times = math.log(image_size,2)- 3 - uptimes
         bias_flag = False
 
         # 1:
