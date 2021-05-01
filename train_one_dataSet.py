@@ -48,7 +48,7 @@ if args.experiment_name == 'none':
 
 #args.experiment_name += '_Gs%d_Ds%d_Zdim%d_imgSize%d_batch_size%d_256-stride4' % (args.Gscale, args.Dscale, args.z_dim, args.img_size,args.batch_size)
 #args.experiment_name = '512channel_512pixel_noAE_next'
-args.experiment_name = '512to512_256piexl_4*4input_fixBug_balence_GD'
+args.experiment_name = '512to512_256piexl_4*4input_2'
 #args.experiment_name = 'gan256_k4_s4'
 output_dir = os.path.join('output', args.experiment_name)
 
@@ -78,7 +78,7 @@ print('data-size:    '+str(shape))
 #G = net.Generator(input_dim=args.z_dim, output_channels = args.img_channels, image_size=args.img_size, scale=args.Gscale, another_times=another_times_).to(device)
 #D = net.Discriminator_SpectrualNorm(input_dim=args.z_dim, input_channels = args.img_channels, image_size=args.img_size, Gscale=args.Gscale, Dscale=args.Dscale, another_times=another_times_).to(device)
 G = net.Generator(hidden_dim=512, output_channels=3, image_size=args.img_size,uptimes=1).to(device)
-D = net.Discriminator_SpectrualNorm(hidden_dim=512, input_channels=3, image_size=args.img_size, uptimes=1).to(device)
+D = net.Discriminator_SpectrualNorm(hidden_dim=512, input_channels=3, image_size=args.img_size, uptimes=-1).to(device)
 #G = net.Generator(input_dim = 512, output_channels = 3, image_size = 512, first_hidden_dim_ = 512, last_hidden_dim_= 64).to(device)
 #D = net.Discriminator_SpectrualNorm(input_dim = 512, input_channels = 3, image_size=512, first_hidden_dim_= 64, last_hidden_dim_=512).to(device)
 # G.load_state_dict(torch.load('/_wmwang/CommonGAN/output/Celeba_HQ_gan_Gs8_Ds1_Zdim512_imgSize512_batch_size5_512pixel_512dim_D2E/checkpoints/Epoch_G_9.pth',map_location=device)) #shadow的效果要好一些 
